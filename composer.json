@@ -2,6 +2,7 @@
     "name": "chrisdavenport/service",
     "type": "joomla-package",
     "description": "Joomla Framework Command (Service Layer) Package",
+    "homepage": "https://github.com/chrisdavenport/service",
     "license": "GPL v2 or later",
     "authors": [
         {
@@ -19,6 +20,11 @@
         "psr-4": {
             "Joomla\\Service\\": "src/",
             "Joomla\\Service\\Tests\\": "Tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
         }
     }
 }
