@@ -1,5 +1,5 @@
 {
-    "name": "chrisdavenport/command",
+    "name": "chrisdavenport/service",
     "type": "joomla-package",
     "description": "Joomla Framework Command (Service Layer) Package",
     "license": "GPL v2 or later",
