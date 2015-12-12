@@ -523,3 +523,7 @@
 /index.php
 /joomla.xml
 /*.txt
+
+.project
+vendor
+
