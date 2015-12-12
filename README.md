@@ -49,19 +49,19 @@ that can be used across a variety of "channels".
 
 1. Install Joomla in the usual way.
 2. Merge the following into the composer.json file.
-```json
-{
-	"require": {
-		"chrisdavenport/service": "dev-master"
-	},
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/chrisdavenport/service.git"
-		}
-	]
-}
-```
+    ```json
+    {
+    	"require": {
+    		"chrisdavenport/service": "dev-master"
+    	},
+    	"repositories": [
+    		{
+    			"type": "vcs",
+    			"url": "https://github.com/chrisdavenport/service.git"
+    		}
+    	]
+    }
+    ```
 3. composer update
 
 ## Using the Service Layer
