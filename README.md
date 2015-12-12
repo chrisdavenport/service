@@ -45,6 +45,25 @@ use of CQRS to optimise performance, the scaffolding to do that is readily avail
 The introduction of a service layer directly addresses the problem of defining a component-level API
 that can be used across a variety of "channels".
 
+## Installation
+
+1. Install Joomla in the usual way.
+2. Merge the following into the composer.json file.
+```json
+{
+	"require": {
+		"chrisdavenport/service": "dev-master"
+	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/chrisdavenport/service.git"
+		}
+	]
+}
+```
+3. composer update
+
 ## Using the Service Layer
 
 A simple service layer consists of just three elements.  A command, a command bus and a command handler.
