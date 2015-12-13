@@ -19,8 +19,20 @@ namespace Joomla\Service;
  * 
  * @since   __DEPLOY__
  */
-class CommandBusBase extends \League\Tactician\CommandBus implements CommandBus
+class CommandBusBase implements CommandBus
 {
+	private $commandBus = null;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param   array  $middleware  Array of middleware decorators.
+	 */
+	public function __construct(array $middleware)
+	{
+		$this->commandBus = new \League\Tactician\CommandBus($middleware);
+	}
+
 	/**
 	 * Handle a command.
 	 * 
@@ -29,14 +41,8 @@ class CommandBusBase extends \League\Tactician\CommandBus implements CommandBus
 	 * @return  mixed
 	 * @since   __DEPLOY__
 	 */
-	public function handle($command)
+	public function handle(Command $command)
 	{
-		// We can't type hint against Command because PHP throws a strict standards error.
-		if (!($command instanceof Command))
-		{
-			throw new \InvalidArgumentException('Argument must be a Command');
-		}
-
-		return parent::handle($command);
+		return $this->commandBus->handle($command);
 	}
 }

@@ -10,12 +10,43 @@
 namespace Joomla\Service;
 
 /**
- * Abstract base class for command/service handlers.
+ * Base class for command/service handlers.
+ * 
+ * Supports handling of domain events.  This would be better implemented
+ * as a trait, but traits are not implemented until PHP 5.4.0.
  * 
  * @since   __DEPLOY__
  */
-abstract class CommandHandlerBase implements CommandHandler
+class CommandHandlerBase implements CommandHandler
 {
+	// Domain events.
+	private $pendingEvents = array();
+
+	/**
+	 * Raise a domain event.
+	 * 
+	 * @param   DomainEvent  $event  Domain event object.
+	 * 
+	 * @return  void
+	 */
+	public function raiseEvent(Event $event)
+	{
+		$this->pendingEvents[] = $event;
+	}
+
+	/**
+	 * Release all pending domain events.
+	 * 
+	 * @return  array of DomainEvent objects.
+	 */
+	public function releaseEvents()
+	{
+		$events = $this->pendingEvents;
+		$this->pendingEvents = array();
+
+		return $events;
+	}
+
 	/**
 	 * Handle a command.
 	 * 
