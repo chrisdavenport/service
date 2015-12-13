@@ -24,5 +24,5 @@ interface CommandBus
 	 * @return  mixed
 	 * @since   __DEPLOY__
 	 */
-	public function handle(Command $command);
+	public function handle($command);
 }

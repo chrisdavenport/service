@@ -29,8 +29,14 @@ class CommandBusBase extends \League\Tactician\CommandBus implements CommandBus
 	 * @return  mixed
 	 * @since   __DEPLOY__
 	 */
-	public function handle(Command $command)
+	public function handle($command)
 	{
+		// We can't type hint against Command because PHP throws a strict standards error.
+		if (!($command instanceof Command))
+		{
+			throw new \InvalidArgumentException('Argument must be a Command');
+		}
+
 		return parent::handle($command);
 	}
 }
