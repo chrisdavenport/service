@@ -16,7 +16,7 @@ The following problems are addressed:
 
 Whilst the Service Layer presents the public API of a compoennt, the nature of the API is somewhat
 different from other APIs that you might be used to working with.
-* All inputs and outpus are in the form of message objects.
+* All inputs and outputs are in the form of message objects.
 * Requests are made in the form of immutable message objects.
 * Separation of read-only requests from write-only requests.
 * Replies to read requests are in the form of data transfer objects (document messages).
@@ -70,35 +70,45 @@ that can be used across a variety of "channels".
 A simple service layer consists of just three elements.  A command, a command bus and a command handler.
 A common example would be a controller that needs to call a model.  Rather than calling the model
 directly, the controller instead creates a command object and passes it to the command bus.  The
-command bus dispatches the command to the command handler, which makes calls to the model.
+command bus dispatches the command to the command handler, which then makes calls to the model.
 
-This is simple enough, but why the extra layer?  
+### A simple example  
 
 ```php
-namespace My\App;
-
 use Joomla\Service\CommandBase;
 use Joomla\Service\CommandBusProvider;
 use Joomla\Service\CommandHandlerBase;
 use Joomla\Service\ServiceBase;
 
-// A concrete service.
-final class ServiceSimpleTest extends ServiceBase {}
-
 // A concrete command.
-final class CommandSimpleTest extends CommandBase {}
+final class MycomponentCommandTest extends CommandBase
+{
+	public function __construct($arg1, $arg2)
+	{
+		$this->arg1 = $arg1;
+		$this->arg2 = $arg2;
+
+		parent::__construct();
+	}
+}
 
 // A concrete command handler.
-final class CommandHandlerSimpleTest extends CommandHandlerBase
+final class MycomponentCommandHandlerTest extends CommandHandlerBase
 {
-	public function handle(CommandSimpleTest $command)
+	public function handle(MycomponentCommandTest $command)
 	{
-		return true;
+		// Do something here.
 	}
 }
 
 // Configure the DI container.
 $container = (new Container)->registerServiceProvider(new CommandBusProvider);
+
+// Create a command.
+$command = new MycomponentCommandTest($arg1, $arg2);
+
+// Execute the command.
+(new ServiceBase($container))->execute(($command));
 ```
 
 TO BE CONTINUED
