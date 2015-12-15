@@ -28,10 +28,12 @@ class DomainEventMiddleware implements Middleware
 	 *
 	 * Suppose there is a DomainEvent with the class name 'PrefixEventSuffix',
 	 * then you can register listeners for the event using:-
-	 *   1. A closure.
-	 *         Example: \JEventDispatcher::getInstance()->register('onPrefixEventSuffix', function($event) { echo 'Do something here'; });
-	 *   2. A loaded or autoloadable class called 'PrefixEventListenerSuffix' with a method called 'onPrefixEventSuffix'.
-	 *   3. An installed and enabled Joomla plugin in the 'domainevent' group, with a method called 'onPrefixEventSuffix'.
+	 *   1. A closure.  Example:
+	 *          \JEventDispatcher::getInstance()->register('onPrefixEventSuffix', function($event) { echo 'Do something here'; });
+	 *   2. A callback function or method.  Example:
+	 *          \JEventDispatcher::getInstance()->register('onPrefixEventSuffix', array('MyClass', 'MyMethod));
+	 *   3. A preloaded or autoloadable class called 'PrefixEventListenerSuffix' with a method called 'onPrefixEventSuffix'.
+	 *   4. An installed and enabled Joomla plugin in the 'domainevent' group, with a method called 'onPrefixEventSuffix'.
 	 * In all cases the method called will be passed a single argument consisting of the event object.
 	 * 
 	 * @param   Command   $command  Command object.
@@ -43,6 +45,13 @@ class DomainEventMiddleware implements Middleware
 	{
 		// Execute the command.
 		$events = $next($command);
+
+		// Normally, we expect a possibly empty array of Domain Events.
+		// but if we don't get an array, then bubble an empty array up.
+		if (!is_array($events))
+		{
+			return array();
+		}
 
 		// Handle any domain events that were raised.
 		foreach ($events as $event)
