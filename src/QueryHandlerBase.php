@@ -16,16 +16,4 @@ namespace Joomla\Service;
  */
 abstract class QueryHandlerBase implements QueryHandler
 {
-	/**
-	 * Handle a query.
-	 * 
-	 * @param   Query  $query  A query object.
-	 * 
-	 * @return  mixed
-	 * @since   __DEPLOY__
-	 */
-	public function handle(Query $query)
-	{
-		return false;
-	}
 }

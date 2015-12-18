@@ -19,8 +19,20 @@ namespace Joomla\Service;
  * 
  * @since   __DEPLOY__
  */
-class QueryBusBase extends \League\Tactician\CommandBus implements QueryBus
+class QueryBusBase implements QueryBus
 {
+	private $queryBus = null;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param   array  $middleware  Array of middleware decorators.
+	 */
+	public function __construct(array $middleware)
+	{
+		$this->queryBus = new \League\Tactician\CommandBus($middleware);
+	}
+
 	/**
 	 * Handle a query.
 	 * 
@@ -31,6 +43,6 @@ class QueryBusBase extends \League\Tactician\CommandBus implements QueryBus
 	 */
 	public function handle(Query $query)
 	{
-		return parent::handle($query);
+		return $this->queryBus->handle($query);
 	}
 }

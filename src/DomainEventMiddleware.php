@@ -31,7 +31,7 @@ class DomainEventMiddleware implements Middleware
 	 *   1. A closure.  Example:
 	 *          \JEventDispatcher::getInstance()->register('onPrefixEventSuffix', function($event) { echo 'Do something here'; });
 	 *   2. A callback function or method.  Example:
-	 *          \JEventDispatcher::getInstance()->register('onPrefixEventSuffix', array('MyClass', 'MyMethod));
+	 *          \JEventDispatcher::getInstance()->register('onPrefixEventSuffix', array('MyClass', 'MyMethod'));
 	 *   3. A preloaded or autoloadable class called 'PrefixEventListenerSuffix' with a method called 'onPrefixEventSuffix'.
 	 *   4. An installed and enabled Joomla plugin in the 'domainevent' group, with a method called 'onPrefixEventSuffix'.
 	 * In all cases the method called will be passed a single argument consisting of the event object.
@@ -59,18 +59,14 @@ class DomainEventMiddleware implements Middleware
 			// Import plugins in the domain event group.
 			\JPluginHelper::importPlugin('domainevent');
 
-			// Determine a possible event handler class name.
+			// Get the name of the event.
 			$eventClassName = (new \ReflectionClass($event))->getShortName();
-			$handlerClassName = '\\' . str_replace('Event', 'EventListener', $eventClassName);
 
 			// Determine the event name.
 			$eventName = 'on' . $eventClassName;
 
-			// If the event handler class exists, then register it.
-			if (class_exists($handlerClassName))
-			{
-				$this->dispatcher->register($eventName, array($handlerClassName, $eventName));
-			}
+			// Register by convention.
+			$this->registerByConvention($eventClassName, $eventName);
 
 			// Publish the event to all registered listeners.
 			$this->dispatcher->trigger($eventName, array($event));
@@ -78,5 +74,34 @@ class DomainEventMiddleware implements Middleware
 
 		// Continue bubbling the events up.
 		return $events;
+	}
+
+	/**
+	 * Register a domain event listener by convention.
+	 * 
+	 * Replaces "Event" by "EventListener" in the domain event class name
+	 * and registers that class as a listener.
+	 * 
+	 * @param   string  $eventClassName  Name of the domain event class.
+	 * @param   string  $eventName       Name of the event trigger.
+	 * 
+	 * @return  void
+	 */
+	private function registerByConvention($eventClassName, $eventName)
+	{
+		// The domain event class name must contain the substring "Event".
+		if (stripos($eventClassName, 'event') === false)
+		{
+			return;
+		}
+
+		// Determine the event handler class name.
+		$handlerClassName = '\\' . str_replace('Event', 'EventListener', $eventClassName);
+
+		// If the event handler class exists, then register it.
+		if (class_exists($handlerClassName))
+		{
+			$this->dispatcher->register($eventName, array($handlerClassName, $eventName));
+		}
 	}
 }

@@ -16,13 +16,4 @@ namespace Joomla\Service;
  */
 interface CommandHandler
 {
-	/**
-	 * Handle a command.
-	 * 
-	 * @param   Command  $command  A command object.
-	 * 
-	 * @return  mixed
-	 * @since   __DEPLOY__
-	 */
-	public function handle(Command $command);
 }

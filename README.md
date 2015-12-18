@@ -110,5 +110,85 @@ $command = new MycomponentCommandTest($arg1, $arg2);
 // Execute the command.
 (new ServiceBase($container))->execute(($command));
 ```
+## Domain Events
+
+The service layer provides integrated support for handling domain events.
+A Domain Event is something that happened that domain experts care about and they are
+introduced here in the form of immutable, value objects that are essentially simple messages
+with little or no behaviour of their own.  Unlike commands, which have a one-to-one
+relationship with their handlers, domain events are published to all registered
+listeners and several mechanisms exist to make it easy to extend functionality by
+registering in extension code.
+
+### Naming domain events
+
+Although unenforceable, it is good practice to name events using the past tense.
+Ideally, the terms used should be meaningful to domain experts.
+For example, the domain event raised after successfully executing a RegisterCustomer command,
+might be called CustomerWasRegistered, or perhaps just CustomerRegistered. 
+
+### Registering a domain event listener
+
+Any number of domain event listeners, including none at all, may be registered for each domain event type.
+Different registration methods may be used depending on the context.  The name of the event, where
+a name is required, will be the name of the domain event class with an "on" prefix.
+
+Note that developers should not make any assumptions about the order in which domain event listeners
+are executed.
+
+#### Call by convention
+
+Typically used within a component, this method constructs the name of a domain event handler class
+from the name of the domain event class itself and if the class exists, its event method is called.
+The domain event publisher will look for the keyword "Event" (not case-sensitive) in the domain event
+class name and if found will check to see if a class exists with "Event" replaced by "EventListener"
+and register that class as a listener.
+
+For example, in a typical component there might be a domain event called "MycomponentEventSomethinghappened".
+The publisher will look for a class called "MycomponentEventListenerSomethinghappened" and call its
+"onMycomponentEventSomethinghappened" method, passing the domain event object as the single parameter.
+
+If the component uses the traditional camel-case autoloader, the domain event and domain event listener
+classes will be found in the following paths:
+
+/com_mycomponent/event/somethinghappened.php
+/com_mycomponent/event/listener/somethinghappened.php
+
+#### Calling a Joomla plugin
+
+The event publisher will call the event name trigger method in all installed and enabled Joomla plugins
+in the "domainevent" plugin group.
+
+For example, a domain event called "Somethinghappened" will cause the "onSomethinghappened" method to be
+called for all installed and enabled plugins in the "domainevent" group, passing the domain event object
+as the single parameter.
+
+#### Registering a callback
+
+Any PHP callable may be registered as a domain event listener.  The function or method called must take
+a single argument which will be the domain event object.  Any kind of PHP callable may be used.  For full
+details see http://php.net/manual/en/language.types.callable.php.
+
+For example, a class called "MyClass" with a method called "MyMethod" may be registered as a listener for
+the domain event "SomethingHappened" using the following code, before passing control to the service layer. 
+```php
+\JEventDispatcher::getInstance()->register('onSomethingHappened', array('MyClass', 'MyMethod));
+```
+
+#### Registering a closure
+
+An anonymous function, or closure, may be registered as a domain event listener.  The closure must take
+a single argument which will be passed the domain event object.
+
+For example, the following code will register the closure shown as a listener for the "SomethingHappened"
+domain event:
+
+```php
+\JEventDispatcher::getInstance()->register('onSomethingHappened', function($event) { echo 'Do something here'; });
+```
+
+### Raising a domain event
+
+
 
 TO BE CONTINUED
