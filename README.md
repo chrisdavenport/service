@@ -156,6 +156,23 @@ classes will be found in the following paths:
 /com_mycomponent/event/listener/somethinghappened.php
 ```
 
+Here's an example of a domain event listener:
+```php
+final class MycomponentEventListenerSomethinghappened
+{
+	/**
+	 * Event listener.
+	 *
+	 * Note that it must be declared as static otherwise you will get
+	 * a strict standards error.
+	 */
+	public static function onMycomponentEventSomethinghappened($event)
+	{
+		// Do whatever you want here.
+	}
+}
+```
+
 #### Calling a Joomla plugin
 
 The event publisher will call the event name trigger method in all installed and enabled Joomla plugins

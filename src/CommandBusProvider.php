@@ -36,7 +36,7 @@ class CommandBusProvider implements ServiceProviderInterface
 	{
 		$container->share('commandbus',
 
-			function(Container $c)
+			function(Container $container)
 			{
 		        $handlerMiddleware = new CommandHandlerMiddleware(
 		            new ClassNameExtractor(),
@@ -59,12 +59,12 @@ class CommandBusProvider implements ServiceProviderInterface
 		            new HandleInflector()
 		        );
 
-				$middleware = [
-					new LockingMiddleware(),	// Prevent one command from being executed while another is already running.
-					new DomainEventMiddleware(\JEventDispatcher::getInstance()),
-//					new \LoggingMiddleware,
+				// Note: LockingMiddleware prevents one command from being executed while another is already running.
+				$middleware = array(
+					new LockingMiddleware(),
+					new DomainEventMiddleware($container, \JEventDispatcher::getInstance()),
 					$handlerMiddleware
-		        ];
+		        );
 				
 		        return new CommandBusBase($middleware);
 			},

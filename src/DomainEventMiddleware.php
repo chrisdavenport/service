@@ -5,26 +5,37 @@
 
 namespace Joomla\Service;
 
+use Joomla\DI\Container;
 use League\Tactician\Middleware;
 
 class DomainEventMiddleware implements Middleware
 {
+	/**
+	 * Dependency injection container.
+	 */
+	protected $container = null;
+
+	/**
+	 * Event dispatcher.
+	 */
 	protected $dispatcher = null;
 
 	/**
 	 * Constructor.
 	 * 
+	 * @param   Container        $container   A dependency injection container.
 	 * @param   EventDispatcher  $dispatcher  An event dispatcher.
 	 */
-	public function __construct(\JEventDispatcher $dispatcher)
+	public function __construct(Container $container, \JEventDispatcher $dispatcher)
 	{
+		$this->container = $container;
 		$this->dispatcher = $dispatcher;
 	}
 	
 	/**
 	 * Decorator.
 	 * 
-	 * Calls the inner handler then dispatches any DomainEvents raised.
+	 * Calls the inner handler then dispatches any domain events raised.
 	 *
 	 * Suppose there is a DomainEvent with the class name 'PrefixEventSuffix',
 	 * then you can register listeners for the event using:-
@@ -34,7 +45,8 @@ class DomainEventMiddleware implements Middleware
 	 *          \JEventDispatcher::getInstance()->register('onPrefixEventSuffix', array('MyClass', 'MyMethod'));
 	 *   3. A preloaded or autoloadable class called 'PrefixEventListenerSuffix' with a method called 'onPrefixEventSuffix'.
 	 *   4. An installed and enabled Joomla plugin in the 'domainevent' group, with a method called 'onPrefixEventSuffix'.
-	 * In all cases the method called will be passed a single argument consisting of the event object.
+	 * 
+	 * In all cases the method called will be passed two arguments: the event object and the dependency injection container.
 	 * 
 	 * @param   Command   $command  Command object.
 	 * @param   callable  $next     Inner middleware object being decorated.
@@ -43,24 +55,61 @@ class DomainEventMiddleware implements Middleware
 	 */
 	public function execute($command, callable $next)
 	{
-		// Execute the command.
+		$accumulatedEvents = array();
+
+		// Pass the command to the next inner layer of middleware.
 		$events = $next($command);
 
-		// Normally, we expect a possibly empty array of Domain Events.
+		// Normally, we expect a possibly empty array of events,
 		// but if we don't get an array, then bubble an empty array up.
 		if (!is_array($events))
 		{
-			return array();
+			return $accumulatedEvents;
 		}
 
-		// Handle any domain events that were raised.
+		// Recursively publish any domain events that were raised.
+		do
+		{
+			// Accumulate all events raised.
+			$accumulatedEvents = array_merge($accumulatedEvents, $events);
+
+			// Publish the events.
+			$events = $this->innerEventLoop($events);
+		}
+		while (!empty($events));
+
+		// Bubble the events up to the next outer layer of middleware.
+		return $accumulatedEvents;
+	}
+
+	/**
+	 * Inner event loop.
+	 * 
+	 * Each event listener might raise further events which need
+	 * to be passed back into the event loop for publishing.
+	 * 
+	 * @param   array  $events  Array of domain event objects.
+	 * 
+	 * @return  array of newly-raised domain event objects.
+	 */
+	private function innerEventLoop($events)
+	{
+		$collectedEvents = array();
+
 		foreach ($events as $event)
 		{
+			// Ignore anything that isn't actually an event, just in case.
+//			if (!($event instanceof Event))
+//			{
+//				continue;
+//			}
+
 			// Import plugins in the domain event group.
 			\JPluginHelper::importPlugin('domainevent');
 
 			// Get the name of the event.
-			$eventClassName = (new \ReflectionClass($event))->getShortName();
+			$eventClassReflection = new \ReflectionClass($event);
+			$eventClassName = $eventClassReflection->getShortName();
 
 			// Determine the event name.
 			$eventName = 'on' . $eventClassName;
@@ -69,11 +118,16 @@ class DomainEventMiddleware implements Middleware
 			$this->registerByConvention($eventClassName, $eventName);
 
 			// Publish the event to all registered listeners.
-			$this->dispatcher->trigger($eventName, array($event));
+			$results = $this->dispatcher->trigger($eventName, array($event, $this->container));
+
+			// Merge results into collected events array.
+			foreach ($results as $result)
+			{
+				$collectedEvents = array_merge($collectedEvents, $result);
+			}
 		}
 
-		// Continue bubbling the events up.
-		return $events;
+		return $collectedEvents;
 	}
 
 	/**
