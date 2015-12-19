@@ -37,10 +37,19 @@ class CommandHandlerBase implements CommandHandler
 	/**
 	 * Release all pending domain events.
 	 * 
+	 * As a convenience, a new event can also be raised at the same time.
+	 * 
+	 * @param   DomainEvent  $event  An event to be raised.
+	 * 
 	 * @return  array of DomainEvent objects.
 	 */
-	public function releaseEvents()
+	public function releaseEvents($event = null)
 	{
+		if ($event instanceof Event)
+		{
+			$this->raiseEvent($event);
+		}
+
 		$events = $this->pendingEvents;
 		$this->pendingEvents = array();
 
