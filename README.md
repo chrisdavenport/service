@@ -81,7 +81,7 @@ use Joomla\Service\CommandHandlerBase;
 use Joomla\Service\ServiceBase;
 
 // A concrete command.
-final class MycomponentCommandTest extends CommandBase
+final class MycomponentCommandDosomething extends CommandBase
 {
 	public function __construct($arg1, $arg2)
 	{
@@ -93,9 +93,9 @@ final class MycomponentCommandTest extends CommandBase
 }
 
 // A concrete command handler.
-final class MycomponentCommandHandlerTest extends CommandHandlerBase
+final class MycomponentCommandHandlerDosomething extends CommandHandlerBase
 {
-	public function handle(MycomponentCommandTest $command)
+	public function handle(MycomponentCommandDosomething $command)
 	{
 		// Do something here.
 	}
@@ -105,7 +105,7 @@ final class MycomponentCommandHandlerTest extends CommandHandlerBase
 $container = (new Container)->registerServiceProvider(new CommandBusProvider);
 
 // Create a command.
-$command = new MycomponentCommandTest($arg1, $arg2);
+$command = new MycomponentCommandDosomething($arg1, $arg2);
 
 // Execute the command.
 (new ServiceBase($container))->execute(($command));
@@ -151,8 +151,10 @@ The publisher will look for a class called "MycomponentEventListenerSomethinghap
 If the component uses the traditional camel-case autoloader, the domain event and domain event listener
 classes will be found in the following paths:
 
+```
 /com_mycomponent/event/somethinghappened.php
 /com_mycomponent/event/listener/somethinghappened.php
+```
 
 #### Calling a Joomla plugin
 
@@ -172,7 +174,8 @@ details see http://php.net/manual/en/language.types.callable.php.
 For example, a class called "MyClass" with a method called "MyMethod" may be registered as a listener for
 the domain event "SomethingHappened" using the following code, before passing control to the service layer. 
 ```php
-\JEventDispatcher::getInstance()->register('onSomethingHappened', array('MyClass', 'MyMethod));
+\JEventDispatcher::getInstance()
+	->register('onSomethingHappened', array('MyClass', 'MyMethod));
 ```
 
 #### Registering a closure
@@ -184,11 +187,88 @@ For example, the following code will register the closure shown as a listener fo
 domain event:
 
 ```php
-\JEventDispatcher::getInstance()->register('onSomethingHappened', function($event) { echo 'Do something here'; });
+\JEventDispatcher::getInstance()
+	->register('onSomethingHappened', function($event) { echo 'Do something here'; });
 ```
 
 ### Raising a domain event
 
+Command handlers are expected to return an array of domain events that were raised.  The command bus will
+then take care of publishing those events to all registered listeners.  As a convenience, a couple of
+methods are available in the CommandHandlerBase class that make it easy to accumulate domain events and
+return them.
 
+To raise a domain event, simply instantiate a domain event object and pass it to the command handler's
+raiseEvent method.  For example, the following code raises a "Somethinghappened" event, which takes a
+couple of arguments, inside a command handler:
+
+```php
+$this->raiseEvent(new Somethinghappened($arg1, $arg2));
+```
+
+### Releasing domain events
+
+Once a command handler has finished executing, control passes back to the command bus.  There needs to be
+some mechanism for passing any domain events raised in the command handler back to the command bus where
+they can be published.  This is done with the releaseEvents method.  For example, the following code shows
+a simple command handler class which raises a couple of domain events then returns then back to the
+command bus.
+
+```php
+final class DoSomething extends CommandHandlerBase
+{
+	/**
+	 * Command handler.
+	 * 
+	 * @param   DoSomething  $command  A command.
+	 * 
+	 * @return  array of DomainEvent objects.
+	 * @throws  RuntimeException
+	 */
+	public function handle(DoSomething $command)
+	{
+		// Some logic goes here.
+		
+		$this->raiseEvent(new SomethingHappened($arg1, $arg2));
+
+		// Some more logic goes here.
+		
+		$this->raiseEvent(new SomethingElseHappened($arg3));
+
+		// All done.
+		return $this->releaseEvents();
+	}
+}
+```
+
+Since many command handlers often end by raising an event, the releaseEvents method also takes an
+optional event object as an argument.  The code above can be shortened a little as follows:
+
+```php
+final class DoSomething extends CommandHandlerBase
+{
+	/**
+	 * Command handler.
+	 * 
+	 * @param   DoSomething  $command  A command.
+	 * 
+	 * @return  array of DomainEvent objects.
+	 * @throws  RuntimeException
+	 */
+	public function handle(DoSomething $command)
+	{
+		// Some logic goes here.
+		
+		$this->raiseEvent(new SomethingHappened($arg1, $arg2));
+
+		// Some more logic goes here.
+
+		// All done.
+		return $this->releaseEvents(
+			new SomethingElseHappened($arg3)
+		);
+	}
+}
+```
 
 TO BE CONTINUED
