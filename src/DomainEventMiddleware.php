@@ -23,8 +23,10 @@ class DomainEventMiddleware implements Middleware
 	/**
 	 * Constructor.
 	 * 
-	 * @param   Container        $container   A dependency injection container.
-	 * @param   EventDispatcher  $dispatcher  An event dispatcher.
+	 * @param   Container          $container   A dependency injection container.
+	 * @param   \JEventDispatcher  $dispatcher  An event dispatcher.
+	 * 
+	 * @since   __DEPLOY__
 	 */
 	public function __construct(Container $container, \JEventDispatcher $dispatcher)
 	{
@@ -52,6 +54,7 @@ class DomainEventMiddleware implements Middleware
 	 * @param   callable  $next     Inner middleware object being decorated.
 	 * 
 	 * @return  void
+	 * @since   __DEPLOY__
 	 */
 	public function execute($command, callable $next)
 	{
@@ -91,6 +94,7 @@ class DomainEventMiddleware implements Middleware
 	 * @param   array  $events  Array of domain event objects.
 	 * 
 	 * @return  array of newly-raised domain event objects.
+	 * @since   __DEPLOY__
 	 */
 	private function innerEventLoop($events)
 	{
@@ -99,10 +103,10 @@ class DomainEventMiddleware implements Middleware
 		foreach ($events as $event)
 		{
 			// Ignore anything that isn't actually an event, just in case.
-//			if (!($event instanceof Event))
-//			{
-//				continue;
-//			}
+			if (!($event instanceof Event))
+			{
+				continue;
+			}
 
 			// Import plugins in the domain event group.
 			\JPluginHelper::importPlugin('domainevent');
@@ -140,6 +144,7 @@ class DomainEventMiddleware implements Middleware
 	 * @param   string  $eventName       Name of the event trigger.
 	 * 
 	 * @return  void
+	 * @since   __DEPLOY__
 	 */
 	private function registerByConvention($eventClassName, $eventName)
 	{

@@ -14,7 +14,7 @@ The following problems are addressed:
 * asynchronous operation
 * distributed operation
 
-Whilst the Service Layer presents the public API of a compoennt, the nature of the API is somewhat
+Whilst the Service Layer presents the public API of a component, the nature of the API is somewhat
 different from other APIs that you might be used to working with.
 * All inputs and outputs are in the form of message objects.
 * Requests are made in the form of immutable message objects.
@@ -27,7 +27,8 @@ different from other APIs that you might be used to working with.
 The service layer inherently supports the idea of Command Query Responsibility Segregation (CQRS)
 where "commands" are treated slightly differently from "queries".  A command is some action that
 causes the model state to be changed in some way, but produces no output as a result.  On the other
-hand, a query causes no changes to model state, but does produce output.
+hand, a query causes no changes to model state, but does produce output.  In other words, a
+query has no side-effects for which the caller is held responsible.
 
 Carefully designing an extension to separate these concerns can assist with scalability
 because it makes it much easier to have separate models for commands and queries that can
@@ -40,10 +41,16 @@ whereas the read model uses denormalised views, perhaps on a NoSQL database.
 This is not to say that this separation is enforced.  Only that should the developer wish to make
 use of CQRS to optimise performance, the scaffolding to do that is readily available.
 
+The separation of commands from queries is embodied in the Service Layer package by having two
+separate base classes for the two kinds of message.  These are handled by separate buses that have
+slightly different middleware configurations.
+
 ## Service Layer as API
 
 The introduction of a service layer directly addresses the problem of defining a component-level API
-that can be used across a variety of "channels".
+that can be used across a variety of "channels".  The API is completely defined by the commands
+it can handle and the domain events that are raised as a result and by the queries it can handle
+and the data returned as a result.
 
 ## Installation
 
@@ -72,8 +79,10 @@ A common example would be a controller that needs to call a model.  Rather than 
 directly, the controller instead creates a command object and passes it to the command bus.  The
 command bus dispatches the command to the command handler, which then makes calls to the model.
 
-### A simple example  
-
+### A simple example - command
+In this example, a simple command is created and submitted to the command bus.  This routes it to
+a simple command handler using the "call by convention" method described in more detail later in
+this document.
 ```php
 use Joomla\Service\CommandBase;
 use Joomla\Service\CommandBusProvider;
@@ -109,6 +118,50 @@ $command = new MycomponentCommandDosomething($arg1, $arg2);
 
 // Execute the command.
 (new ServiceBase($container))->execute(($command));
+```
+### A simple example - query
+In this example, a simple query is created and submitted to the query bus.  This routes it to
+a simple query handler using the "call by convention" method described in more detail later in
+this document.
+
+Note that the query bus does not support domain events and any that are raised will be lost.
+```php
+use Joomla\Service\QueryBase;
+use Joomla\Service\QueryBusProvider;
+use Joomla\Service\QueryHandlerBase;
+use Joomla\Service\ServiceBase;
+
+// A concrete query.
+final class MycomponentQuerySomething extends QueryBase
+{
+	public function __construct($arg1, $arg2)
+	{
+		$this->arg1 = $arg1;
+		$this->arg2 = $arg2;
+
+		parent::__construct();
+	}
+}
+
+// A concrete query handler.
+final class MycomponentQueryHandlerSomething extends QueryHandlerBase
+{
+	public function handle(MycomponentQuerySomething $query)
+	{
+		// Retrieve some data into a data transfer object (DTO) here.
+
+		return $dto;
+	}
+}
+
+// Configure the DI container.
+$container = (new Container)->registerServiceProvider(new QueryBusProvider);
+
+// Create a query.
+$query = new MycomponentQuerySomething($arg1, $arg2);
+
+// Execute the query.
+$result = (new ServiceBase($container))->execute(($query));
 ```
 ## Domain Events
 
@@ -150,12 +203,10 @@ The publisher will look for a class called "MycomponentEventListenerSomethinghap
 
 If the component uses the traditional camel-case autoloader, the domain event and domain event listener
 classes will be found in the following paths:
-
 ```
 /com_mycomponent/event/somethinghappened.php
 /com_mycomponent/event/listener/somethinghappened.php
 ```
-
 Here's an example of a domain event listener:
 ```php
 final class MycomponentEventListenerSomethinghappened
@@ -202,7 +253,6 @@ a single argument which will be passed the domain event object.
 
 For example, the following code will register the closure shown as a listener for the "SomethingHappened"
 domain event:
-
 ```php
 \JEventDispatcher::getInstance()
 	->register('onSomethingHappened', function($event) { echo 'Do something here'; });
@@ -218,10 +268,31 @@ return them.
 To raise a domain event, simply instantiate a domain event object and pass it to the command handler's
 raiseEvent method.  For example, the following code raises a "Somethinghappened" event, which takes a
 couple of arguments, inside a command handler:
-
 ```php
 $this->raiseEvent(new Somethinghappened($arg1, $arg2));
 ```
+A domain event listener may also raise further domain events by returning them in an array.  In the
+following example the listener method raises a domain event and returns it.
+```php
+final class MycomponentEventListenerSomethinghappened
+{
+	/**
+	 * Event listener.
+	 *
+	 * Note that it must be declared as static otherwise you will get
+	 * a strict standards error.
+	 */
+	public static function onMycomponentEventSomethinghappened($event)
+	{
+		// Do whatever you want here.
+
+		return (
+			new MycomponentEventSomethingElseHappened($arg1, $arg2)
+		);
+	}
+}
+```
+The order of publication of events should not be relied upon.
 
 ### Releasing domain events
 
@@ -230,7 +301,6 @@ some mechanism for passing any domain events raised in the command handler back 
 they can be published.  This is done with the releaseEvents method.  For example, the following code shows
 a simple command handler class which raises a couple of domain events then returns then back to the
 command bus.
-
 ```php
 final class DoSomething extends CommandHandlerBase
 {
@@ -257,10 +327,8 @@ final class DoSomething extends CommandHandlerBase
 	}
 }
 ```
-
 Since many command handlers often end by raising an event, the releaseEvents method also takes an
 optional event object as an argument.  The code above can be shortened a little as follows:
-
 ```php
 final class DoSomething extends CommandHandlerBase
 {
@@ -287,5 +355,89 @@ final class DoSomething extends CommandHandlerBase
 	}
 }
 ```
+## Advanced topics
 
-TO BE CONTINUED
+### Firing another command or query from within a command or query handler.
+
+Sometimes it is useful to fire off a query from within a command or query handler.
+This is made possible by the fact that the container, which contains a reference to
+the singleton command bus, is available as a protected property in all command and
+query handler classes.  The query executes and returns immediately.
+
+Sometimes it is tempting to fire a command from within another command and this is
+supported as illustrated in the example below.  However, caution should be exercised
+as it could potentially break the "golden rule" that only one aggregate should be
+modified per request.  Do this only if you are aware of the consequences.
+
+For example,
+```php
+final class CommandHandlerDoSomething extends CommandHandlerBase
+{
+	public function handle(CommandDoSomething $command)
+	{
+		// Get the command bus.
+		$service = new ServiceBase($this->container);
+
+		// Do something.
+
+		// Fire off a new command.  This does not execute immediately.
+		$service->execute(new CommandDoSomethingMore());
+
+		// Fire off a new query.
+		$something = $service->execute(new QueryForSomething());
+
+		// Do some more stuff.
+	}
+}
+```
+Bear in mind that, unlike query execution, execution of the command will only start
+after the current command and all its raised domain events have finished executing.
+
+### Firing a command or query from within a domain event listener.
+
+Sometimes it is useful to fire off a query from within a domain event listener.
+This is made possible by the fact that the second argument to the event handler method is
+the dependency injection container, which contains a reference to the singleton command bus.
+The query executes and returns immediately.
+
+Sometimes it is tempting to fire another command from within a domain event listener and
+this is supported as illustrated in the example below.  However, caution should be exercised
+as it could potentially break the "golden rule" that only one aggregate should be
+modified per request.  Do this only if you are aware of the consequences.
+```php
+final class EventListenerSomethinghappened
+{
+	/**
+	 * Event listener.
+	 *
+	 * Note that it must be declared as static otherwise you will get
+	 * a strict standards error.
+	 *
+	 * @param   Event      $event      A domain event.
+	 * @param   Container  $container  DI container.
+	 * 
+	 * @return  array of domain events or null
+	 */
+	public static function onEventSomethinghappened(Event $event, Container $container)
+	{
+		// Do whatever you want here.
+
+		// Get the command bus.
+		$service = new ServiceBase($container);
+
+		// Execute another command.  This does not execute immediately.
+		$service->execute((new DoSomethingElse($event->data)));
+
+		// Fire off a new query.
+		$something = $service->execute(new QueryForSomething());
+	}
+}
+```
+Note that the new command is queued on the command bus and does not begin execution
+until after the current command and all its raised domain events have finished
+executing.
+
+### Adding custom middleware to the command and query buses
+
+At the present time this can only be done by registering your own command and query buses
+with the DI container.

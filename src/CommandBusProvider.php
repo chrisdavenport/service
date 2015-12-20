@@ -34,14 +34,14 @@ class CommandBusProvider implements ServiceProviderInterface
 	 */
 	public function register(Container $container)
 	{
-		$container->share('commandbus',
-
+		$container->share(
+			'commandbus',
 			function(Container $container)
 			{
 		        $handlerMiddleware = new CommandHandlerMiddleware(
 		            new ClassNameExtractor(),
 					new CallableLocator(
-						function($commandName)
+						function($commandName) use ($container)
 						{
 							// Break apart the fully-qualified class name.
 							// We do this so that the namespace path is not modified.
@@ -53,7 +53,7 @@ class CommandBusProvider implements ServiceProviderInterface
 							// Construct the fully-qualified class name of the handler.
 							$serviceName = implode('\\', $parts) . '\\' . $handlerName;
 
-							return new $serviceName();
+							return new $serviceName($container);
 						}
 					),
 		            new HandleInflector()
@@ -68,6 +68,7 @@ class CommandBusProvider implements ServiceProviderInterface
 				
 		        return new CommandBusBase($middleware);
 			},
-			true);
+			true
+		);
 	}
 }

@@ -26,6 +26,8 @@ abstract class Immutable
 
 	/**
 	 * Constructor.
+	 * 
+	 * @since   __DEPLOY__
 	 */
 	public function __construct()
 	{
@@ -35,7 +37,8 @@ abstract class Immutable
 		}
 
 		// Save the name of the class as a property.
-		$this->name = (new \ReflectionClass($this))->getShortName();
+		$reflectionClass = new \ReflectionClass($this);
+		$this->name = $reflectionClass->getShortName();
 
 		// Save time of object construction as a property.
 		// Convert microtime to string to avoid loss of precision due to overflow.
@@ -57,6 +60,7 @@ abstract class Immutable
 	 * @param   array   $args  Array of arguments passed to the method.
 	 * 
 	 * @return  mixed
+	 * @since   __DEPLOY__
 	 */
 	public function __call($name, array $args)
 	{
@@ -88,6 +92,7 @@ abstract class Immutable
 	 * 
 	 * @return  mixed
 	 * @throws  \RuntimeException
+	 * @since   __DEPLOY__
 	 */
 	public function __get($key)
 	{
@@ -110,6 +115,7 @@ abstract class Immutable
 	 * 
 	 * @return  void
 	 * @throws  \RuntimeException
+	 * @since   __DEPLOY__
 	 */
 	public function __set($key, $value)
 	{

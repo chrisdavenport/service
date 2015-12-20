@@ -27,6 +27,8 @@ class QueryBusBase implements QueryBus
 	 * Constructor.
 	 * 
 	 * @param   array  $middleware  Array of middleware decorators.
+	 * 
+	 * @since   __DEPLOY__
 	 */
 	public function __construct(array $middleware)
 	{

@@ -9,11 +9,27 @@
 
 namespace Joomla\Service;
 
+use Joomla\DI\Container;
+
 /**
  * Abstract base class for query/service handlers.
  * 
  * @since   __DEPLOY__
  */
-abstract class QueryHandlerBase implements QueryHandler
+class QueryHandlerBase implements QueryHandler
 {
+	// Container.
+	protected $container = null;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param   Container  $container  A DI container.
+	 * 
+	 * @since   __DEPLOY__
+	 */
+	public function __construct(Container $container)
+	{
+		$this->container = $container;
+	}
 }

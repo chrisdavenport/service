@@ -9,6 +9,8 @@
 
 namespace Joomla\Service;
 
+use Joomla\DI\Container;
+
 /**
  * Base class for command/service handlers.
  * 
@@ -19,8 +21,23 @@ namespace Joomla\Service;
  */
 class CommandHandlerBase implements CommandHandler
 {
+	// Container.
+	protected $container = null;
+
 	// Domain events.
 	private $pendingEvents = array();
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param   Container  $container  A DI container.
+	 * 
+	 * @since   __DEPLOY__
+	 */
+	public function __construct(Container $container)
+	{
+		$this->container = $container;
+	}
 
 	/**
 	 * Raise a domain event.
@@ -28,6 +45,7 @@ class CommandHandlerBase implements CommandHandler
 	 * @param   DomainEvent  $event  Domain event object.
 	 * 
 	 * @return  void
+	 * @since   __DEPLOY__
 	 */
 	public function raiseEvent(Event $event)
 	{
@@ -42,6 +60,7 @@ class CommandHandlerBase implements CommandHandler
 	 * @param   DomainEvent  $event  An event to be raised.
 	 * 
 	 * @return  array of DomainEvent objects.
+	 * @since   __DEPLOY__
 	 */
 	public function releaseEvents($event = null)
 	{

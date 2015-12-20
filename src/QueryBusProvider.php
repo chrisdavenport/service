@@ -34,14 +34,14 @@ class QueryBusProvider implements ServiceProviderInterface
 	 */
 	public function register(Container $container)
 	{
-		$container->share('querybus',
-
-			function(Container $c)
+		$container->share(
+			'querybus',
+			function(Container $container)
 			{
 		        $handlerMiddleware = new CommandHandlerMiddleware(
 		            new ClassNameExtractor(),
 					new CallableLocator(
-						function($queryName)
+						function($queryName) use ($container)
 						{
 							// Break apart the fully-qualified class name.
 							// We do this so that the namespace path is not modified.
@@ -53,19 +53,19 @@ class QueryBusProvider implements ServiceProviderInterface
 							// Construct the fully-qualified class name of the handler.
 							$serviceName = implode('\\', $parts) . '\\' . $handlerName;
 
-							return new $serviceName();
+							return new $serviceName($container);
 						}
 					),
 		            new HandleInflector()
 		        );
 
-				$middleware = [
-//					new \LoggingMiddleware,
+				$middleware = array(
 					$handlerMiddleware
-		        ];
+		        );
 				
 		        return new QueryBusBase($middleware);
 			},
-			true);
+			true
+		);
 	}
 }
