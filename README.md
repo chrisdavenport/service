@@ -79,10 +79,35 @@ A common example would be a controller that needs to call a model.  Rather than 
 directly, the controller instead creates a command object and passes it to the command bus.  The
 command bus dispatches the command to the command handler, which then makes calls to the model.
 
+Equivalently, on the query side the service layer would consist of a query, a query bus and a query
+handler.  Actually, there is no problem combining the two so a controller might contain a mix of
+command and query calls.
+
+Queries can be called hierarchically and will work as expected since they return immediately with
+the data requested.  However, commands are always executed sequentially even if a command is initiated
+from within another command.  This prevents that would inevitably arise if commands were to be
+executed hierarchically.
+
+Commands and queries are simple, lightweight, immutable, value objects.  They can and should contain
+simple validation checks in their constructors so that only valid commands may be constructed.  Of
+course, more complex validation rule checks may need to be implemented deeper in the code, but the
+first level of validation can take place directly in the command/query classes themselves.
+
+Command and query objects are routed, via the bus to exactly one handler.  The handler can perform
+whatever logic is required of it.
+
+In the case of a command this will most likely include calls to the model to update state.  At any
+time during the command execution one or more domain events may be raised to indicate that something
+of significance has occurred.  The command handler must return these on exit.  All domain events that
+were raised are then published to all registered listeners for those events. 
+
+In the case of a query, the query will not change any state that the caller would be held responsible
+for.  No domain events may be raised.  The handler must return the data requested and nothing else.
+
 ### A simple example - command
 In this example, a simple command is created and submitted to the command bus.  This routes it to
-a simple command handler using the "call by convention" method described in more detail later in
-this document.
+a command handler using the simple convention that the substring "Command" is replaced in a
+case-sensitive manner by "CommandHandler" in the command class name.
 ```php
 use Joomla\Service\CommandBase;
 use Joomla\Service\CommandBusProvider;
@@ -121,8 +146,8 @@ $command = new MycomponentCommandDosomething($arg1, $arg2);
 ```
 ### A simple example - query
 In this example, a simple query is created and submitted to the query bus.  This routes it to
-a simple query handler using the "call by convention" method described in more detail later in
-this document.
+a query handler using the simple convention that the substring "Query" is replaced in a
+case-sensitive manner by "QueryHandler" in the query class name.
 
 Note that the query bus does not support domain events and any that are raised will be lost.
 ```php
@@ -232,7 +257,20 @@ in the "domainevent" plugin group.
 For example, a domain event called "Somethinghappened" will cause the "onSomethinghappened" method to be
 called for all installed and enabled plugins in the "domainevent" group, passing the domain event object
 as the single parameter.
-
+```php
+class PlgDomainEventSomethinghappened extends JPlugin
+{
+	/**
+	 * Event listener triggered on a Somethinghappened event.
+	 *
+	 * @param   Event      $event      A domain event.
+	 */
+	public function onSomethinghappened(Event $event)
+	{
+		// Do whatever you want here.
+	}
+}
+```
 #### Registering a callback
 
 Any PHP callable may be registered as a domain event listener.  The function or method called must take
@@ -439,5 +477,8 @@ executing.
 
 ### Adding custom middleware to the command and query buses
 
-At the present time this can only be done by registering your own command and query buses
-with the DI container.
+Part of the power of using a command bus is that it can be wrapped with custom middleware
+to take care of a wide variety of tasks that would otherwise be quite difficult.
+
+However, at the present time customising the middleware can only be done by registering
+your own command and/or query buses with the DI container.
