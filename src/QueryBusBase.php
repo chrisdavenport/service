@@ -17,12 +17,12 @@ namespace Joomla\Service;
  * and so cannot be used across all Joomla 3.x sites.  This needs to be
  * resolved before release.
  * 
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 class QueryBusBase implements QueryBus
 {
 	private $queryBus = null;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -41,6 +41,7 @@ class QueryBusBase implements QueryBus
 	 * @param   Query  $query  A query object.
 	 * 
 	 * @return  mixed
+	 * 
 	 * @since   __DEPLOY__
 	 */
 	public function handle(Query $query)

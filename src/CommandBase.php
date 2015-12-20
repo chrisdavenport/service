@@ -43,7 +43,7 @@ namespace Joomla\Service;
  *     echo $command->getRequestedOn(); // Same as $command->requestedOn;
  *     echo $command->getTest();        // Same as $command->test;
  *
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 abstract class CommandBase extends Immutable implements Command
 {

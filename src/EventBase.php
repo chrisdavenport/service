@@ -18,7 +18,7 @@ namespace Joomla\Service;
  *   try to enforce immutability, but these only really guard against accidental
  *   alteration of object state.
  * 
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 abstract class EventBase extends Immutable implements Event
 {

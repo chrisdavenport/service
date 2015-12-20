@@ -12,7 +12,7 @@ namespace Joomla\Service;
 /**
  * Interface command/service handlers.
  * 
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 interface CommandHandler
 {

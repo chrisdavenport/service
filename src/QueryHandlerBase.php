@@ -14,7 +14,7 @@ use Joomla\DI\Container;
 /**
  * Abstract base class for query/service handlers.
  * 
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 class QueryHandlerBase implements QueryHandler
 {

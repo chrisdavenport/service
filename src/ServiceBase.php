@@ -14,7 +14,7 @@ use Joomla\DI\Container;
 /**
  * Base class for Services.
  * 
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 class ServiceBase implements Service
 {
@@ -39,6 +39,7 @@ class ServiceBase implements Service
 	 * @param   object  $command  A Command or Query object.
 	 * 
 	 * @return  void
+	 * 
 	 * @throws  \InvalidArgumentException
 	 * @since   __DEPLOY__
 	 */

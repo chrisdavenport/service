@@ -14,7 +14,7 @@ namespace Joomla\Service;
  * 
  * Implemented as an abstract class here because traits are PHP 5.4 minimum.
  *
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 abstract class Immutable
 {
@@ -60,6 +60,7 @@ abstract class Immutable
 	 * @param   array   $args  Array of arguments passed to the method.
 	 * 
 	 * @return  mixed
+	 * 
 	 * @since   __DEPLOY__
 	 */
 	public function __call($name, array $args)
@@ -91,6 +92,7 @@ abstract class Immutable
 	 * @param   string  $key  Property name (case-insensitive).
 	 * 
 	 * @return  mixed
+	 * 
 	 * @throws  \RuntimeException
 	 * @since   __DEPLOY__
 	 */
@@ -114,6 +116,7 @@ abstract class Immutable
 	 * @param   mixed   $value  Property value.
 	 * 
 	 * @return  void
+	 * 
 	 * @throws  \RuntimeException
 	 * @since   __DEPLOY__
 	 */
@@ -125,6 +128,6 @@ abstract class Immutable
 		}
 
 		// Save key/value pair in argument array.
-		$this->args[strtolower($key)] = $value;		
+		$this->args[strtolower($key)] = $value;
 	}
 }

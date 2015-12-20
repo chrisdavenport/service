@@ -1,6 +1,10 @@
 <?php
 /**
- * Tactician middleware for dispatching domain events.
+ * @package     Joomla.Framework
+ * @subpackage  Service Layer
+ *
+ * @copyright   Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE
  */
 
 namespace Joomla\Service;
@@ -8,6 +12,11 @@ namespace Joomla\Service;
 use Joomla\DI\Container;
 use League\Tactician\Middleware;
 
+/**
+ * Tactician middleware for dispatching domain events.
+ * 
+ * @since  __DEPLOY__
+ */
 class DomainEventMiddleware implements Middleware
 {
 	/**
@@ -33,7 +42,7 @@ class DomainEventMiddleware implements Middleware
 		$this->container = $container;
 		$this->dispatcher = $dispatcher;
 	}
-	
+
 	/**
 	 * Decorator.
 	 * 
@@ -54,6 +63,7 @@ class DomainEventMiddleware implements Middleware
 	 * @param   callable  $next     Inner middleware object being decorated.
 	 * 
 	 * @return  void
+	 * 
 	 * @since   __DEPLOY__
 	 */
 	public function execute($command, callable $next)
@@ -79,6 +89,7 @@ class DomainEventMiddleware implements Middleware
 			// Publish the events.
 			$events = $this->innerEventLoop($events);
 		}
+
 		while (!empty($events));
 
 		// Bubble the events up to the next outer layer of middleware.
@@ -94,6 +105,7 @@ class DomainEventMiddleware implements Middleware
 	 * @param   array  $events  Array of domain event objects.
 	 * 
 	 * @return  array of newly-raised domain event objects.
+	 * 
 	 * @since   __DEPLOY__
 	 */
 	private function innerEventLoop($events)
@@ -144,6 +156,7 @@ class DomainEventMiddleware implements Middleware
 	 * @param   string  $eventName       Name of the event trigger.
 	 * 
 	 * @return  void
+	 * 
 	 * @since   __DEPLOY__
 	 */
 	private function registerByConvention($eventClassName, $eventName)

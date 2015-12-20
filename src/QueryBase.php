@@ -43,7 +43,7 @@ namespace Joomla\Service;
  *     echo $query->getRequestedOn(); // Same as $query->requestedOn;
  *     echo $query->getTest();        // Same as $query->test;
  *
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 abstract class QueryBase extends Immutable implements Query
 {

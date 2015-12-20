@@ -12,7 +12,7 @@ namespace Joomla\Service;
 /**
  * Query Bus interface.
  * 
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 interface QueryBus
 {
@@ -22,6 +22,7 @@ interface QueryBus
 	 * @param   Query  $query  A query object.
 	 * 
 	 * @return  mixed
+	 * 
 	 * @since   __DEPLOY__
 	 */
 	public function handle(Query $query);

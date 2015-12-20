@@ -17,12 +17,12 @@ namespace Joomla\Service;
  * and so cannot be used across all Joomla 3.x sites.  This needs to be
  * resolved before release.
  * 
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 class CommandBusBase implements CommandBus
 {
 	private $commandBus = null;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -41,6 +41,7 @@ class CommandBusBase implements CommandBus
 	 * @param   Command  $command  A command object.
 	 * 
 	 * @return  mixed
+	 * 
 	 * @since   __DEPLOY__
 	 */
 	public function handle(Command $command)

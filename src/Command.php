@@ -12,7 +12,7 @@ namespace Joomla\Service;
 /**
  * Command interface.
  *
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 interface Command
 {

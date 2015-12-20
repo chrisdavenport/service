@@ -17,7 +17,7 @@ use Joomla\DI\Container;
  * Supports handling of domain events.  This would be better implemented
  * as a trait, but traits are not implemented until PHP 5.4.0.
  * 
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 class CommandHandlerBase implements CommandHandler
 {
@@ -45,6 +45,7 @@ class CommandHandlerBase implements CommandHandler
 	 * @param   DomainEvent  $event  Domain event object.
 	 * 
 	 * @return  void
+	 * 
 	 * @since   __DEPLOY__
 	 */
 	public function raiseEvent(Event $event)
@@ -60,6 +61,7 @@ class CommandHandlerBase implements CommandHandler
 	 * @param   DomainEvent  $event  An event to be raised.
 	 * 
 	 * @return  array of DomainEvent objects.
+	 * 
 	 * @since   __DEPLOY__
 	 */
 	public function releaseEvents($event = null)

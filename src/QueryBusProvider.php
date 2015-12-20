@@ -20,7 +20,7 @@ use League\Tactician\Plugins\LockingMiddleware;
 /**
  * Registers a query bus service provider.
  * 
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 class QueryBusProvider implements ServiceProviderInterface
 {
@@ -30,6 +30,7 @@ class QueryBusProvider implements ServiceProviderInterface
 	 * @param   Container  $container  A dependency injection container.
 	 *
 	 * @return  void
+	 * 
 	 * @since   __DEPLOY__
 	 */
 	public function register(Container $container)
@@ -38,8 +39,8 @@ class QueryBusProvider implements ServiceProviderInterface
 			'querybus',
 			function(Container $container)
 			{
-		        $handlerMiddleware = new CommandHandlerMiddleware(
-		            new ClassNameExtractor(),
+				$handlerMiddleware = new CommandHandlerMiddleware(
+					new ClassNameExtractor,
 					new CallableLocator(
 						function($queryName) use ($container)
 						{
@@ -56,14 +57,14 @@ class QueryBusProvider implements ServiceProviderInterface
 							return new $serviceName($container);
 						}
 					),
-		            new HandleInflector()
-		        );
+					new HandleInflector
+				);
 
 				$middleware = array(
 					$handlerMiddleware
-		        );
-				
-		        return new QueryBusBase($middleware);
+				);
+
+				return new QueryBusBase($middleware);
 			},
 			true
 		);

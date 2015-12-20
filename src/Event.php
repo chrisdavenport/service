@@ -12,7 +12,7 @@ namespace Joomla\Service;
 /**
  * Domain Event interface.
  *
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 interface Event
 {

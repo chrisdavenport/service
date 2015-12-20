@@ -12,7 +12,7 @@ namespace Joomla\Service;
 /**
  * Query interface.
  *
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 interface Query
 {

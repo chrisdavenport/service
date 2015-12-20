@@ -20,7 +20,7 @@ use League\Tactician\Plugins\LockingMiddleware;
 /**
  * Registers a command bus service provider.
  * 
- * @since   __DEPLOY__
+ * @since  __DEPLOY__
  */
 class CommandBusProvider implements ServiceProviderInterface
 {
@@ -30,6 +30,7 @@ class CommandBusProvider implements ServiceProviderInterface
 	 * @param   Container  $container  A dependency injection container.
 	 *
 	 * @return  void
+	 * 
 	 * @since   __DEPLOY__
 	 */
 	public function register(Container $container)
@@ -38,8 +39,8 @@ class CommandBusProvider implements ServiceProviderInterface
 			'commandbus',
 			function(Container $container)
 			{
-		        $handlerMiddleware = new CommandHandlerMiddleware(
-		            new ClassNameExtractor(),
+				$handlerMiddleware = new CommandHandlerMiddleware(
+					new ClassNameExtractor,
 					new CallableLocator(
 						function($commandName) use ($container)
 						{
@@ -56,17 +57,17 @@ class CommandBusProvider implements ServiceProviderInterface
 							return new $serviceName($container);
 						}
 					),
-		            new HandleInflector()
-		        );
+					new HandleInflector
+				);
 
 				// Note: LockingMiddleware prevents one command from being executed while another is already running.
 				$middleware = array(
-					new LockingMiddleware(),
+					new LockingMiddleware,
 					new DomainEventMiddleware($container, \JEventDispatcher::getInstance()),
 					$handlerMiddleware
-		        );
-				
-		        return new CommandBusBase($middleware);
+				);
+
+				return new CommandBusBase($middleware);
 			},
 			true
 		);
