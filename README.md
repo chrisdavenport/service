@@ -91,15 +91,17 @@ executed hierarchically.
 Commands and queries are simple, lightweight, immutable, value objects.  They can and should contain
 simple validation checks in their constructors so that only valid commands may be constructed.  Of
 course, more complex validation rule checks may need to be implemented deeper in the code, but the
-first level of validation can take place directly in the command/query classes themselves.
+first level of validation can take place directly in the command/query classes themselves.  Because
+they are such simple objects, commands and queries, together with events which are mentioned later,
+may be easily serialised and treated as messages in enterprise messaging applications.  Together
+with CQRS this begins to address some of the scalability concerns in the Joomla architecture.
 
 Command and query objects are routed, via the bus to exactly one handler.  The handler can perform
-whatever logic is required of it.
-
-In the case of a command this will most likely include calls to the model to update state.  At any
-time during the command execution one or more domain events may be raised to indicate that something
-of significance has occurred.  The command handler must return these on exit.  All domain events that
-were raised are then published to all registered listeners for those events. 
+whatever logic is required of it. In the case of a command this will most likely include calls to the
+model to update state.  At any time during the command execution one or more domain events may be
+raised to indicate that something of significance has occurred.  The command handler must return
+these on exit.  All domain events that were raised are then published to all registered listeners
+for those events. 
 
 In the case of a query, the query will not change any state that the caller would be held responsible
 for.  No domain events may be raised.  The handler must return the data requested and nothing else.
