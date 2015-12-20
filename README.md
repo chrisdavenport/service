@@ -286,7 +286,7 @@ final class MycomponentEventListenerSomethinghappened
 	{
 		// Do whatever you want here.
 
-		return (
+		return array(
 			new MycomponentEventSomethingElseHappened($arg1, $arg2)
 		);
 	}
@@ -357,7 +357,7 @@ final class DoSomething extends CommandHandlerBase
 ```
 ## Advanced topics
 
-### Firing another command or query from within a command or query handler.
+### Firing another command or query from within a command or query handler
 
 Sometimes it is useful to fire off a query from within a command or query handler.
 This is made possible by the fact that the container, which contains a reference to
@@ -393,7 +393,7 @@ final class CommandHandlerDoSomething extends CommandHandlerBase
 Bear in mind that, unlike query execution, execution of the command will only start
 after the current command and all its raised domain events have finished executing.
 
-### Firing a command or query from within a domain event listener.
+### Firing a command or query from within a domain event listener
 
 Sometimes it is useful to fire off a query from within a domain event listener.
 This is made possible by the fact that the second argument to the event handler method is
