@@ -106,6 +106,27 @@ for those events.
 In the case of a query, the query will not change any state that the caller would be held responsible
 for.  No domain events may be raised.  The handler must return the data requested and nothing else.
 
+### Configuring the dependency injection container
+
+In order to use the service layer, you will need to provide three functions in the DI container:
+
+* "commandbus" must provide an instance of a command bus.
+* "querybus" must provide an instance of a query bus.
+* "dispatcher" must provide an instance of a domain event publisher (dispatcher).
+
+The following code may be used to add these functions to the DI container in their default configurations:
+```php
+use Joomla\Service\CommandBusProvider;
+use Joomla\Service\DispatcherProvider;
+use Joomla\Service\QueryBusProvider;
+
+$container = (new Container)
+	->registerServiceProvider(new CommandBusProvider)
+	->registerServiceProvider(new QueryBusProvider)
+	->registerServiceProvider(new DispatcherProvider)
+	;
+```
+
 ### A simple example - command
 In this example, a simple command is created and submitted to the command bus.  This routes it to
 a command handler using the simple convention that the substring "Command" is replaced in a
@@ -282,7 +303,7 @@ details see http://php.net/manual/en/language.types.callable.php.
 For example, a class called "MyClass" with a method called "MyMethod" may be registered as a listener for
 the domain event "SomethingHappened" using the following code, before passing control to the service layer. 
 ```php
-\JEventDispatcher::getInstance()
+$container->get('dispatcher')
 	->register('onSomethingHappened', array('MyClass', 'MyMethod));
 ```
 
@@ -294,7 +315,7 @@ a single argument which will be passed the domain event object.
 For example, the following code will register the closure shown as a listener for the "SomethingHappened"
 domain event:
 ```php
-\JEventDispatcher::getInstance()
+$container->get('dispatcher')
 	->register('onSomethingHappened', function($event) { echo 'Do something here'; });
 ```
 

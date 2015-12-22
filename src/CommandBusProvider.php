@@ -63,7 +63,7 @@ class CommandBusProvider implements ServiceProviderInterface
 				// Note: LockingMiddleware prevents one command from being executed while another is already running.
 				$middleware = array(
 					new LockingMiddleware,
-					new DomainEventMiddleware($container, \JEventDispatcher::getInstance()),
+					new DomainEventMiddleware($container, $container->get('dispatcher')),
 					$handlerMiddleware
 				);
 

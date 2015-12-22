@@ -25,22 +25,15 @@ class DomainEventMiddleware implements Middleware
 	protected $container = null;
 
 	/**
-	 * Event dispatcher.
-	 */
-	protected $dispatcher = null;
-
-	/**
 	 * Constructor.
 	 * 
 	 * @param   Container          $container   A dependency injection container.
-	 * @param   \JEventDispatcher  $dispatcher  An event dispatcher.
 	 * 
 	 * @since   __DEPLOY__
 	 */
-	public function __construct(Container $container, \JEventDispatcher $dispatcher)
+	public function __construct(Container $container)
 	{
 		$this->container = $container;
-		$this->dispatcher = $dispatcher;
 	}
 
 	/**
@@ -51,9 +44,9 @@ class DomainEventMiddleware implements Middleware
 	 * Suppose there is a DomainEvent with the class name 'PrefixEventSuffix',
 	 * then you can register listeners for the event using:-
 	 *   1. A closure.  Example:
-	 *          \JEventDispatcher::getInstance()->register('onPrefixEventSuffix', function($event) { echo 'Do something here'; });
+	 *          $container->get('dispatcher')->register('onPrefixEventSuffix', function($event) { echo 'Do something here'; });
 	 *   2. A callback function or method.  Example:
-	 *          \JEventDispatcher::getInstance()->register('onPrefixEventSuffix', array('MyClass', 'MyMethod'));
+	 *          $container->get('dispatcher')->register('onPrefixEventSuffix', array('MyClass', 'MyMethod'));
 	 *   3. A preloaded or autoloadable class called 'PrefixEventListenerSuffix' with a method called 'onPrefixEventSuffix'.
 	 *   4. An installed and enabled Joomla plugin in the 'domainevent' group, with a method called 'onPrefixEventSuffix'.
 	 * 
@@ -134,7 +127,7 @@ class DomainEventMiddleware implements Middleware
 			$this->registerByConvention($eventClassName, $eventName);
 
 			// Publish the event to all registered listeners.
-			$results = $this->dispatcher->trigger($eventName, array($event, $this->container));
+			$results = $this->container->get('dispatcher')->trigger($eventName, array($event, $this->container));
 
 			// Merge results into collected events array.
 			foreach ($results as $result)
@@ -173,7 +166,7 @@ class DomainEventMiddleware implements Middleware
 		// If the event handler class exists, then register it.
 		if (class_exists($handlerClassName))
 		{
-			$this->dispatcher->register($eventName, array($handlerClassName, $eventName));
+			$this->container->get('dispatcher')->register($eventName, array($handlerClassName, $eventName));
 		}
 	}
 }
