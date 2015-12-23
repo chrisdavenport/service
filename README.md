@@ -116,6 +116,7 @@ In order to use the service layer, you will need to provide three functions in t
 
 The following code may be used to add these functions to the DI container in their default configurations:
 ```php
+use Joomla\DI\Container;
 use Joomla\Service\CommandBusProvider;
 use Joomla\Service\DispatcherProvider;
 use Joomla\Service\QueryBusProvider;
@@ -127,14 +128,44 @@ $container = (new Container)
 	;
 ```
 
+## Commands
+
+Commands are simple, immutable, value objects that have only limited behaviour of their own.
+Generally, you will want to create your own command objects by extending from the base
+"CommandBase" object as that brings in some useful features, mainly relating to immutability.
+
+Because commands are intended to be immutable, setters are not permitted and any (simple)
+attempts to change command properties after object construction will result in an exception.
+
+Command object properties may only be set during object construction.  This can be done by
+simply setting properties directly.  You must always call the parent constructor *after*
+setting properties.  This signals that object construction is completed and no more setting
+of properties will be allowed.
+
+By default, the command object has a magic getter that allows access to all previously set
+properties, either directly or via a "get[property]()" method.  For example, is a property
+called "myprop" has been set (in the constructor), then you can get it's value using either
+"$command->myprop" or "$command->getMyprop()".  An attempt to get a property that was not
+previously set will result in an exception.  To override the default getter, simply create your
+own get method, for example, "public function getMyprop()".
+
+As mentioned earlier, simple validation logic can and should be placed in the constructor so
+that invalid commands cannot be instantiated.  Of course, validation logic that involves
+checking against other objects and/or database access should not be done in the command
+constructor, but rather belongs in the command handlers.  In the Joomla CMS at present, most
+validation is done in the models, but really it's not a domain model concern and should
+really be moved into the service layer.
+
 ### A simple example - command
 In this example, a simple command is created and submitted to the command bus.  This routes it to
 a command handler using the simple convention that the substring "Command" is replaced in a
 case-sensitive manner by "CommandHandler" in the command class name.
 ```php
+use Joomla\DI\Container;
 use Joomla\Service\CommandBase;
 use Joomla\Service\CommandBusProvider;
 use Joomla\Service\CommandHandlerBase;
+use Joomla\Service\DispatcherProvider;
 use Joomla\Service\ServiceBase;
 
 // A concrete command.
@@ -159,7 +190,10 @@ final class MycomponentCommandHandlerDosomething extends CommandHandlerBase
 }
 
 // Configure the DI container.
-$container = (new Container)->registerServiceProvider(new CommandBusProvider);
+$container = (new Container)
+	->registerServiceProvider(new CommandBusProvider)
+	->registerServiceProvider(new DispatcherProvider)
+	;
 
 // Create a command.
 $command = new MycomponentCommandDosomething($arg1, $arg2);
@@ -167,6 +201,16 @@ $command = new MycomponentCommandDosomething($arg1, $arg2);
 // Execute the command.
 (new ServiceBase($container))->execute(($command));
 ```
+## Queries
+
+Queries are to all intents and purposes exactly like commands.  The difference lies purely
+in how they are treated by the command bus (which we'll call a query bus here).  A query
+can be dropped onto the bus at any time and will execute and return immediately.  This is
+in contrast to commands, which will only execute sequentially, one after another.  Queries
+are expected to return data, most likely although not required, in the form of a Data
+Transfer Object (DTO).  On the other hand, commands cannot return data.  However, commands
+can raise and publish Domain Events, which queries can't.
+
 ### A simple example - query
 In this example, a simple query is created and submitted to the query bus.  This routes it to
 a query handler using the simple convention that the substring "Query" is replaced in a
@@ -174,6 +218,8 @@ case-sensitive manner by "QueryHandler" in the query class name.
 
 Note that the query bus does not support domain events and any that are raised will be lost.
 ```php
+use Joomla\DI\Container;
+use Joomla\Service\DispatcherProvider;
 use Joomla\Service\QueryBase;
 use Joomla\Service\QueryBusProvider;
 use Joomla\Service\QueryHandlerBase;
@@ -203,7 +249,10 @@ final class MycomponentQueryHandlerSomething extends QueryHandlerBase
 }
 
 // Configure the DI container.
-$container = (new Container)->registerServiceProvider(new QueryBusProvider);
+$container = (new Container)
+	->registerServiceProvider(new QueryBusProvider)
+	->registerServiceProvider(new DispatcherProvider)
+	;
 
 // Create a query.
 $query = new MycomponentQuerySomething($arg1, $arg2);
@@ -211,6 +260,7 @@ $query = new MycomponentQuerySomething($arg1, $arg2);
 // Execute the query.
 $result = (new ServiceBase($container))->execute(($query));
 ```
+
 ## Domain Events
 
 The service layer provides integrated support for handling domain events.
@@ -219,27 +269,28 @@ introduced here in the form of immutable, value objects that are essentially sim
 with little or no behaviour of their own.  Unlike commands, which have a one-to-one
 relationship with their handlers, domain events are published to all registered
 listeners and several mechanisms exist to make it easy to extend functionality by
-registering in extension code.
+registering listeners in extension code.
 
 ### Naming domain events
 
 Although unenforceable, it is good practice to name events using the past tense.
 Ideally, the terms used should be meaningful to domain experts.
-For example, the domain event raised after successfully executing a RegisterCustomer command,
-might be called CustomerWasRegistered, or perhaps just CustomerRegistered. 
+For example, the domain event raised after successfully executing a "RegisterCustomer" command,
+might be called "CustomerWasRegistered", or perhaps just "CustomerRegistered". 
 
 ### Registering a domain event listener
 
 Any number of domain event listeners, including none at all, may be registered for each domain event type.
 Different registration methods may be used depending on the context.  The name of the event, where
-a name is required, will be the name of the domain event class with an "on" prefix.
+a name is required, will be the name of the domain event class with an "on" prefix.  For example,
+an event class called "CustomerRegistered" will be associated with the event named "onCustomerRegistered".
 
 Note that developers should not make any assumptions about the order in which domain event listeners
 are executed.
 
 #### Call by convention
 
-Typically used within a component, this method constructs the name of a domain event handler class
+Typically used within a component, this method constructs the name of a domain event listener class
 from the name of the domain event class itself and if the class exists, its event method is called.
 The domain event publisher will look for the keyword "Event" (not case-sensitive) in the domain event
 class name and if found will check to see if a class exists with "Event" replaced by "EventListener"
@@ -286,7 +337,7 @@ class PlgDomainEventSomethinghappened extends JPlugin
 	/**
 	 * Event listener triggered on a Somethinghappened event.
 	 *
-	 * @param   Event      $event      A domain event.
+	 * @param   Event  $event  A domain event.
 	 */
 	public function onSomethinghappened(Event $event)
 	{
@@ -371,6 +422,7 @@ final class DoSomething extends CommandHandlerBase
 	 * @param   DoSomething  $command  A command.
 	 * 
 	 * @return  array of DomainEvent objects.
+	 *
 	 * @throws  RuntimeException
 	 */
 	public function handle(DoSomething $command)
@@ -399,6 +451,7 @@ final class DoSomething extends CommandHandlerBase
 	 * @param   DoSomething  $command  A command.
 	 * 
 	 * @return  array of DomainEvent objects.
+	 *
 	 * @throws  RuntimeException
 	 */
 	public function handle(DoSomething $command)
@@ -426,7 +479,7 @@ the singleton command bus, is available as a protected property in all command a
 query handler classes.  The query executes and returns immediately.
 
 Sometimes it is tempting to fire a command from within another command and this is
-supported as illustrated in the example below.  However, caution should be exercised
+illustrated in the example below.  However, caution should be exercised
 as it could potentially break the "golden rule" that only one aggregate should be
 modified per request.  Do this only if you are aware of the consequences.
 
@@ -462,7 +515,7 @@ the dependency injection container, which contains a reference to the singleton 
 The query executes and returns immediately.
 
 Sometimes it is tempting to fire another command from within a domain event listener and
-this is supported as illustrated in the example below.  However, caution should be exercised
+this is illustrated in the example below.  However, caution should be exercised
 as it could potentially break the "golden rule" that only one aggregate should be
 modified per request.  Do this only if you are aware of the consequences.
 ```php
