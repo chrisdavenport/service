@@ -42,8 +42,7 @@ abstract class Immutable
 
 		// Save time of object construction as a property.
 		// Convert microtime to string to avoid loss of precision due to overflow.
-		$microtime = microtime();
-		$parts = explode(' ', $microtime);
+		$parts = explode(' ', microtime());
 		$this->requestedon = sprintf('%d%03d', $parts[1], $parts[0] * 1000);
 
 		// Flag object construction completed.
@@ -61,6 +60,7 @@ abstract class Immutable
 	 * 
 	 * @return  mixed
 	 * 
+	 * @throws  \InvalidArgumentException
 	 * @since   __DEPLOY__
 	 */
 	public function __call($name, array $args)
@@ -68,7 +68,7 @@ abstract class Immutable
 		// If the method call is not a getter, throw an exception.
 		if (strtolower(substr($name, 0, 3)) != 'get')
 		{
-			throw new \RuntimeException('Method does not exist: ' . $name);
+			throw new \InvalidArgumentException('Method does not exist: ' . $name);
 		}
 
 		// Get name of the property being requested.
@@ -77,7 +77,7 @@ abstract class Immutable
 		// If property does not exist throw an exception.
 		if (!isset($this->args[$key]))
 		{
-			throw new \RuntimeException('Cannot get property because property does not exist: ' . $key);
+			throw new \InvalidArgumentException('Cannot get property because property does not exist: ' . $key);
 		}
 
 		return $this->args[$key];
@@ -93,14 +93,14 @@ abstract class Immutable
 	 * 
 	 * @return  mixed
 	 * 
-	 * @throws  \RuntimeException
+	 * @throws  \InvalidArgumentException
 	 * @since   __DEPLOY__
 	 */
 	public function __get($key)
 	{
 		if (!isset($this->args[strtolower($key)]))
 		{
-			throw new \RuntimeException('Cannot read property because property does not exist: ' . $key);
+			throw new \InvalidArgumentException('Cannot read property because property does not exist: ' . $key);
 		}
 
 		return $this->args[strtolower($key)];
@@ -117,14 +117,14 @@ abstract class Immutable
 	 * 
 	 * @return  void
 	 * 
-	 * @throws  \RuntimeException
+	 * @throws  \InvalidArgumentException
 	 * @since   __DEPLOY__
 	 */
 	public function __set($key, $value)
 	{
 		if ($this->constructed)
 		{
-			throw new \RuntimeException('Cannot set property, object is immutable.');
+			throw new \InvalidArgumentException('Cannot set property, object is immutable.');
 		}
 
 		// Save key/value pair in argument array.

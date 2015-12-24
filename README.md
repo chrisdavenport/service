@@ -372,10 +372,10 @@ $container->get('dispatcher')
 
 ### Raising a domain event
 
-Command handlers are expected to return an array of domain events that were raised.  The command bus will
-then take care of publishing those events to all registered listeners.  As a convenience, a couple of
-methods are available in the CommandHandlerBase class that make it easy to accumulate domain events and
-return them.
+Command handlers are expected to return a, possibly empty, array of domain events that were raised.  The
+command bus will then take care of publishing those events to all registered listeners.  As a convenience,
+a couple of methods are available in the CommandHandlerBase class that make it easy to accumulate domain
+events and return them.
 
 To raise a domain event, simply instantiate a domain event object and pass it to the command handler's
 raiseEvent method.  For example, the following code raises a "Somethinghappened" event, which takes a
@@ -470,6 +470,17 @@ final class DoSomething extends CommandHandlerBase
 }
 ```
 ## Advanced topics
+
+### Command, query and event reserved properties
+
+The following properties are considered reserved in command, query and event
+objects and are not available as settable properties in object constructors.
+The values associated with these reserved properties are as follows:-
+
+* *constructed*.  Always returns true once the object has been constructed.
+* *name*.  The (short) class name of the object.
+* *requestedon*.  The time at which the object was instantiated in microseconds
+since 1 January 1970.
 
 ### Firing another command or query from within a command or query handler
 
