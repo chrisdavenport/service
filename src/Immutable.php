@@ -130,4 +130,18 @@ abstract class Immutable
 		// Save key/value pair in argument array.
 		$this->args[strtolower($key)] = $value;
 	}
+
+	/**
+	 * Get the properties of the object.
+	 * 
+	 * @return  array of key-value pairs.
+	 */
+	public function getProperties()
+	{
+		// Unset the properties we don't want to expose.
+		$properties = $this->args;
+		unset($properties['requestedon']);
+
+		return $properties;
+	}
 }

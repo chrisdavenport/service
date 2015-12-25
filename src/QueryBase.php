@@ -45,6 +45,6 @@ namespace Joomla\Service;
  *
  * @since  __DEPLOY__
  */
-abstract class QueryBase extends Immutable implements Query
+abstract class QueryBase extends Value implements Query
 {
 }

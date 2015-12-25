@@ -20,6 +20,26 @@ namespace Joomla\Service;
  * 
  * @since  __DEPLOY__
  */
-abstract class EventBase extends Immutable implements Event
+abstract class EventBase extends Value implements Event
 {
+	/**
+	 * Check for equality of this event against another event.
+	 * 
+	 * This overrides the generic equality test because we want to
+	 * include the requestedon timestamp too.
+	 * 
+	 * @param   Value  $other  Another value object to compare with this one.
+	 * 
+	 * @return  boolean
+	 */
+	public function equals(Value $other)
+	{
+		// Must have occurred at the same time.
+		if ($this->requestedon != $other->requestedon)
+		{
+			return false;
+		}
+
+		return parent::equals($other);
+	}
 }

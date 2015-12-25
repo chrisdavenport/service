@@ -45,6 +45,6 @@ namespace Joomla\Service;
  *
  * @since  __DEPLOY__
  */
-abstract class CommandBase extends Immutable implements Command
+abstract class CommandBase extends Value implements Command
 {
 }
