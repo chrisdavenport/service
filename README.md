@@ -482,6 +482,27 @@ The values associated with these reserved properties are as follows:-
 * *requestedon*.  The time at which the object was instantiated in microseconds
 since 1 January 1970.
 
+### Value objects
+
+Commands, queries and events are all considered to be value objects.  A value
+object is an immutable object whose identity depends only on the values of its
+properties.  In other words, two objects are considered the same if they have
+the same value.
+
+Two value objects can be compared to see if they are the same using the *equals*
+method.  For example,
+```php
+$command1 = new SomeCommand($arg1, $arg2);
+$command2 = new SomeCommand($arg3, $arg4);
+
+// Are they the same?
+echo $command1->equals($command2) ? 'Yes' : 'No';
+```
+Normally the *requestedon* timestamp is not taken into consideration when comparing
+for equality, however for events it is.  Note that the comparison has only microsecond
+granularity, that is, two events occurring in the same microsecond will compare as
+equal even though they might not be the same actual event.
+
 ### Firing another command or query from within a command or query handler
 
 Sometimes it is useful to fire off a query from within a command or query handler.
