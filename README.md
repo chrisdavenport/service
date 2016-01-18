@@ -55,21 +55,13 @@ and the data returned as a result.
 ## Installation
 
 1. Install Joomla in the usual way.
-2. Merge the statements below into the composer.json file.
-3. composer update
-
-```json
-{
-	"require": {
-		"chrisdavenport/service": "dev-master"
-	},
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/chrisdavenport/service.git"
-		}
-	]
-}
+2. Add the GitHub repository
+```
+composer config repositories.jservice vcs https://github.com/chrisdavenport/service.git
+```
+3. Require the package
+```
+composer require chrisdavenport/service:dev-master
 ```
 
 ## Using the Service Layer
