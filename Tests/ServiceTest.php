@@ -54,11 +54,14 @@ final class QueryHandlerSimpleTest extends QueryHandlerBase
 	}
 }
 
+// A mock event dispatcher.
+final class MockEventDispatcher {}
+
 // Configure the DI container.
 $container = (new Container)
 	->registerServiceProvider(new CommandBusProvider)
 	->registerServiceProvider(new QueryBusProvider)
-	->registerServiceProvider(new DispatcherProvider)
+	->set('dispatcher', new MockEventDispatcher)
 	;
 $query = new QuerySimpleTest('Some content');
 $service = new ServiceSimpleTest($container);
