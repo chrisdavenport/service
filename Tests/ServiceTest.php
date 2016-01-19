@@ -8,7 +8,6 @@ use Joomla\Service\Command;
 use Joomla\Service\CommandBase;
 use Joomla\Service\CommandBusProvider;
 use Joomla\Service\CommandHandlerBase;
-use Joomla\Service\DispatcherProvider;
 use Joomla\Service\Query;
 use Joomla\Service\QueryBase;
 use Joomla\Service\QueryHandlerBase;

@@ -110,13 +110,12 @@ The following code may be used to add these functions to the DI container in the
 ```php
 use Joomla\DI\Container;
 use Joomla\Service\CommandBusProvider;
-use Joomla\Service\DispatcherProvider;
 use Joomla\Service\QueryBusProvider;
 
 $container = (new Container)
 	->registerServiceProvider(new CommandBusProvider)
 	->registerServiceProvider(new QueryBusProvider)
-	->registerServiceProvider(new DispatcherProvider)
+	->set('dispatcher', \JEventDispatcher::getInstance())
 	;
 ```
 
@@ -157,7 +156,6 @@ use Joomla\DI\Container;
 use Joomla\Service\CommandBase;
 use Joomla\Service\CommandBusProvider;
 use Joomla\Service\CommandHandlerBase;
-use Joomla\Service\DispatcherProvider;
 use Joomla\Service\ServiceBase;
 
 // A concrete command.
@@ -184,7 +182,7 @@ final class MycomponentCommandHandlerDosomething extends CommandHandlerBase
 // Configure the DI container.
 $container = (new Container)
 	->registerServiceProvider(new CommandBusProvider)
-	->registerServiceProvider(new DispatcherProvider)
+	->set('dispatcher', \JEventDispatcher::getInstance())
 	;
 
 // Create a command.
@@ -211,7 +209,6 @@ case-sensitive manner by "QueryHandler" in the query class name.
 Note that the query bus does not support domain events and any that are raised will be lost.
 ```php
 use Joomla\DI\Container;
-use Joomla\Service\DispatcherProvider;
 use Joomla\Service\QueryBase;
 use Joomla\Service\QueryBusProvider;
 use Joomla\Service\QueryHandlerBase;
@@ -243,7 +240,7 @@ final class MycomponentQueryHandlerSomething extends QueryHandlerBase
 // Configure the DI container.
 $container = (new Container)
 	->registerServiceProvider(new QueryBusProvider)
-	->registerServiceProvider(new DispatcherProvider)
+	->set('dispatcher', \JEventDispatcher::getInstance())
 	;
 
 // Create a query.
