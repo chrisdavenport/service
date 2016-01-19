@@ -52,8 +52,8 @@ it('should pass if the getName method returns the name of the test query', (new 
 it('should pass if the name property contains the name of the test query', (new QuerySimpleTest)->name == 'QuerySimpleTest');
 it('should pass if the getRequestedOn method does not throw an exception', (new QuerySimpleTest)->getRequestedOn());
 it('should pass if accessing the requestedOn property does not throw an exception', (new QuerySimpleTest)->requestedOn);
-it('should throw a \RuntimeException when trying to change the requestedOn time.',
-	throws('\RuntimeException', function() {
+it('should throw an \InvalidArgumentException when trying to change the requestedOn time.',
+	throws('\InvalidArgumentException', function() {
 		$query = new QuerySimpleTest;
 		$query->requestedon = 'something';
 	})

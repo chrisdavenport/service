@@ -8,6 +8,7 @@ use Joomla\Service\Command;
 use Joomla\Service\CommandBase;
 use Joomla\Service\CommandBusProvider;
 use Joomla\Service\CommandHandlerBase;
+use Joomla\Service\DispatcherProvider;
 use Joomla\Service\Query;
 use Joomla\Service\QueryBase;
 use Joomla\Service\QueryHandlerBase;
@@ -57,6 +58,7 @@ final class QueryHandlerSimpleTest extends QueryHandlerBase
 $container = (new Container)
 	->registerServiceProvider(new CommandBusProvider)
 	->registerServiceProvider(new QueryBusProvider)
+	->registerServiceProvider(new DispatcherProvider)
 	;
 $query = new QuerySimpleTest('Some content');
 $service = new ServiceSimpleTest($container);

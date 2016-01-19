@@ -52,8 +52,8 @@ it('should pass if the getName method returns the name of the test command', (ne
 it('should pass if the name property contains the name of the test command', (new CommandSimpleTest)->name == 'CommandSimpleTest');
 it('should pass if the getRequestedOn method does not throw an exception', (new CommandSimpleTest)->getRequestedOn());
 it('should pass if accessing the requestedOn property does not throw an exception', (new CommandSimpleTest)->requestedOn);
-it('should throw a \RuntimeException when trying to change the requestedOn time.',
-	throws('\RuntimeException', function() {
+it('should throw an \InvalidArgumentException when trying to change the requestedOn time.',
+	throws('\InvalidArgumentException', function() {
 		$command = new CommandSimpleTest;
 		$command->requestedon = 'something';
 	})

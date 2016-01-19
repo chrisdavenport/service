@@ -18,13 +18,13 @@ final class ImmutableTest extends Immutable
 	}
 }
 
-it('should throw a \RuntimeException when trying to get a non-existant property',
-	throws('\RuntimeException', function() {
+it('should throw an \InvalidArgumentException when trying to get a non-existant property',
+	throws('\InvalidArgumentException', function() {
 		$something = (new ImmutableTest)->doesNotExist;
 	})
 );
-it('should throw a \RuntimeException when trying to create a new property',
-	throws('\RuntimeException', function() {
+it('should throw an \InvalidArgumentException when trying to create a new property',
+	throws('\InvalidArgumentException', function() {
 		$testObject = new ImmutableTest;
 		$testObject->test = 'something';
 	})
