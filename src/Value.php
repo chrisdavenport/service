@@ -3,7 +3,7 @@
  * @package     Joomla.Framework
  * @subpackage  Service Layer
  *
- * @copyright   Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -12,9 +12,10 @@ namespace Joomla\Service;
 /**
  * Value object trait.
  * 
+ * Adds the notion of equality to immutable objects.
  * Implemented as an abstract class here because traits are PHP 5.4 minimum.
  *
- * @since  __DEPLOY__
+ * @since  __DEPLOY_VERSION__
  */
 abstract class Value extends Immutable
 {
@@ -28,6 +29,8 @@ abstract class Value extends Immutable
 	 * @param   Value  $other  Another value object to compare with this one.
 	 * 
 	 * @return  boolean
+	 * 
+	 * @since  __DEPLOY_VERSION__
 	 */
 	public function equals(Value $other)
 	{
@@ -51,6 +54,8 @@ abstract class Value extends Immutable
 	 * @param   mixed  $thing2  A thing to compare for equality against $thing1.
 	 * 
 	 * @return  boolean
+	 * 
+	 * @since  __DEPLOY_VERSION__
 	 */
 	private function equalsRecursive($thing1, $thing2)
 	{
@@ -83,6 +88,8 @@ abstract class Value extends Immutable
 	 * @param   array  $thing2  An array to compare for equality against $thing1.
 	 * 
 	 * @return  boolean
+	 * 
+	 * @since  __DEPLOY_VERSION__
 	 */
 	private function equalsArrays($thing1, $thing2)
 	{
@@ -105,6 +112,8 @@ abstract class Value extends Immutable
 	 * @param   object  $thing2  An object to compare for equality against $thing1.
 	 * 
 	 * @return  boolean
+	 * 
+	 * @since  __DEPLOY_VERSION__
 	 */
 	private function equalsObjects($thing1, $thing2)
 	{

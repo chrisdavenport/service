@@ -10,7 +10,7 @@ require __DIR__ . '/../../../../vendor/autoload.php';
 function it($m,$p){echo"\033[3",$p?'2m✔︎':'1m✘'.register_shutdown_function(function(){die(1);})," It $m\033[0m\n";}
 function throws($exp,\Closure $cb){try{$cb();}catch(\Exception $e){return $e instanceof $exp;}return false;}
 
-final class CommandSimpleTest extends CommandBase
+final class CommandSimpleTest extends Command
 {
 	public function __construct($test = null)
 	{
@@ -20,7 +20,7 @@ final class CommandSimpleTest extends CommandBase
 	}
 }
 
-final class CommandComplexTest extends CommandBase
+final class CommandComplexTest extends Command
 {
 	protected $arg1 = null;
 	protected $arg2 = null;
@@ -50,12 +50,12 @@ it('should pass when the constructor argument can be retrieved by a getter metho
 it('should pass when the constructor argument can be retrieved as an object property.', (new CommandSimpleTest('testing'))->test == 'testing');
 it('should pass if the getName method returns the name of the test command', (new CommandSimpleTest)->getName() == 'CommandSimpleTest');
 it('should pass if the name property contains the name of the test command', (new CommandSimpleTest)->name == 'CommandSimpleTest');
-it('should pass if the getRequestedOn method does not throw an exception', (new CommandSimpleTest)->getRequestedOn());
-it('should pass if accessing the requestedOn property does not throw an exception', (new CommandSimpleTest)->requestedOn);
-it('should throw an \InvalidArgumentException when trying to change the requestedOn time.',
+it('should pass if the getRaisedOn method does not throw an exception', (new CommandSimpleTest)->getRaisedOn());
+it('should pass if accessing the raisedOn property does not throw an exception', (new CommandSimpleTest)->raisedOn);
+it('should throw an \InvalidArgumentException when trying to change the raisedOn time.',
 	throws('\InvalidArgumentException', function() {
 		$command = new CommandSimpleTest;
-		$command->requestedon = 'something';
+		$command->raisedon = 'something';
 	})
 );
 it('should throw a \RuntimeException when trying to instantiate an invalid command',

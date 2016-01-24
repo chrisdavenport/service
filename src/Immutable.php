@@ -3,7 +3,7 @@
  * @package     Joomla.Framework
  * @subpackage  Service Layer
  *
- * @copyright   Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -14,7 +14,7 @@ namespace Joomla\Service;
  * 
  * Implemented as an abstract class here because traits are PHP 5.4 minimum.
  *
- * @since  __DEPLOY__
+ * @since  __DEPLOY_VERSION__
  */
 abstract class Immutable
 {
@@ -27,7 +27,7 @@ abstract class Immutable
 	/**
 	 * Constructor.
 	 * 
-	 * @since   __DEPLOY__
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function __construct()
 	{
@@ -39,11 +39,6 @@ abstract class Immutable
 		// Save the name of the class as a property.
 		$reflectionClass = new \ReflectionClass($this);
 		$this->name = $reflectionClass->getShortName();
-
-		// Save time of object construction as a property.
-		// Convert microtime to string to avoid loss of precision due to overflow.
-		$parts = explode(' ', microtime());
-		$this->requestedon = sprintf('%d%03d', $parts[1], $parts[0] * 1000);
 
 		// Flag object construction completed.
 		$this->constructed = true;
@@ -61,7 +56,7 @@ abstract class Immutable
 	 * @return  mixed
 	 * 
 	 * @throws  \InvalidArgumentException
-	 * @since   __DEPLOY__
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function __call($name, array $args)
 	{
@@ -94,7 +89,7 @@ abstract class Immutable
 	 * @return  mixed
 	 * 
 	 * @throws  \InvalidArgumentException
-	 * @since   __DEPLOY__
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function __get($key)
 	{
@@ -118,7 +113,7 @@ abstract class Immutable
 	 * @return  void
 	 * 
 	 * @throws  \InvalidArgumentException
-	 * @since   __DEPLOY__
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function __set($key, $value)
 	{
@@ -135,13 +130,11 @@ abstract class Immutable
 	 * Get the properties of the object.
 	 * 
 	 * @return  array of key-value pairs.
+	 * 
+	 * @since  __DEPLOY_VERSION__
 	 */
 	public function getProperties()
 	{
-		// Unset the properties we don't want to expose.
-		$properties = $this->args;
-		unset($properties['requestedon']);
-
-		return $properties;
+		return $this->args;
 	}
 }
