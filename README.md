@@ -213,7 +213,7 @@ $commandBus = (new CommandBusBuilder($dispatcher))->getCommandBus();
 $command = new MycomponentCommandDosomething($arg1, $arg2);
 
 // Execute the command.
-$commandBus->handle(($command));
+$commandBus->handle($command);
 ```
 
 ## Queries
@@ -268,7 +268,7 @@ $commandBus = (new CommandBusBuilder)->getCommandBus();
 $query = new MycomponentQuerySomething($arg1, $arg2);
 
 // Handle the query.
-$dto = $commandBus->handle(($query));
+$dto = $commandBus->handle($query);
 ```
 
 ## Domain Events
@@ -667,6 +667,7 @@ $commandBus = (new CommandBusBuilder)
 	)
 	->getCommandBus()
 	;
+```
 
 #### Method name inflector
 
