@@ -1,65 +1,100 @@
 <?php
-namespace Joomla\Service\Tests;
+namespace Joomla\Tests\Unit\Service;
 
-use Joomla\Service\Query;
-use Joomla\Service\QueryBase;
-use Joomla\Service\Immutable;
+use Joomla\Tests\Unit\Service\Stubs\ComplexQuery;
+use Joomla\Tests\Unit\Service\Stubs\SimpleQuery;
 
-require __DIR__ . '/../../../../vendor/autoload.php';
-
-function it($m,$p){echo"\033[3",$p?'2m✔︎':'1m✘'.register_shutdown_function(function(){die(1);})," It $m\033[0m\n";}
-function throws($exp,\Closure $cb){try{$cb();}catch(\Exception $e){return $e instanceof $exp;}return false;}
-
-final class QuerySimpleTest extends Query
+class QueryTest extends \PHPUnit_Framework_TestCase
 {
-	public function __construct($test = null)
+	/**
+	 * @testdox The test query implements the Query interface
+	 */
+	public function testTheTestQueryImplementsTheQueryInterface()
 	{
-		$this->test = $test;
+		$this->assertInstanceOf('\\Joomla\\Service\\Query', new SimpleQuery);
+	}
 
-		parent::__construct();
+
+	/**
+	 * @testdox The test query is an Immutable object
+	 */
+	public function testTheTestQueryIsAnImmutableObject()
+	{
+		$this->assertInstanceOf('\\Joomla\\Service\\Immutable', new SimpleQuery);
+	}
+
+
+	/**
+	 * @testdox The constructor argument can be retrieved by a getter method.
+	 */
+	public function testTheConstructorArgumentCanBeRetrievedByAGetterMethod()
+	{
+		$this->assertEquals('testing', (new SimpleQuery('testing'))->getTest());
+	}
+
+
+	/**
+	 * @testdox The constructor argument can be retrieved as an object property.
+	 */
+	public function testTheConstructorArgumentCanBeRetrievedAsAnObjectProperty()
+	{
+		$this->assertEquals('testing', (new SimpleQuery('testing'))->test);
+	}
+
+
+	/**
+	 * @testdox The getName method returns the name of the test query
+	 */
+	public function testTheGetnameMethodReturnsTheNameOfTheTestQuery()
+	{
+		$this->assertEquals('SimpleQuery', (new SimpleQuery('testing'))->getName());
+	}
+
+
+	/**
+	 * @testdox The name property contains the name of the test query
+	 */
+	public function testTheNamePropertyContainsTheNameOfTheTestQuery()
+	{
+		$this->assertEquals('SimpleQuery', (new SimpleQuery('testing'))->name);
+	}
+
+
+	/**
+	 * @testdox The getRaisedOn method does not throw an exception
+	 */
+	public function testTheGetraisedonMethodDoesNotThrowAnException()
+	{
+		$this->assertNotEmpty((new SimpleQuery)->getRaisedOn());
+	}
+
+
+	/**
+	 * @testdox Accessing the getRaisedOn property does not throw an exception
+	 */
+	public function testAccessingTheRaisedonPropertyDoesNotThrowAnException()
+	{
+		$this->assertNotEmpty((new SimpleQuery)->raisedOn);
+	}
+
+
+	/**
+	 * @expectedException \InvalidArgumentException
+	 * @testdox Throws a \InvalidArgumentException when trying to change the raisedOn time.
+	 */
+	public function testThrowsAnInvalidArgumentExceptionWhenTryingToChangeTheRaisedonTime()
+	{
+		$query = new SimpleQuery;
+		$query->raisedOn = 'something';
+	}
+
+
+	/**
+	 * @expectedException \RuntimeException
+	 * @testdox Throws a \RuntimeException when trying to instantiate an invalid query
+	 */
+	public function testThrowsARuntimeexceptionWhenTryingToInstantiateAnInvalidQuery()
+	{
+		$invalidQuery = new ComplexQuery;
 	}
 }
-
-final class QueryComplexTest extends Query
-{
-	protected $arg1 = null;
-	protected $arg2 = null;
-
-	public function __construct($arg1 = null, $arg2 = null)
-	{
-		parent::__construct();
-
-		$this->validate($arg1, $arg2);
-
-		$this->arg1 = $arg1;
-		$this->arg2 = $arg2;
-	}
-
-	private function validate($arg1, $arg2)
-	{
-		if (is_null($arg1))
-		{
-			throw new \RuntimeException('Argument 1 cannot be null');
-		}
-	}
-}
-
-it('should pass if the test query implements the Query interface', (new QuerySimpleTest) instanceof Query);
-it('should pass if the test query is an Immutable object', (new QuerySimpleTest) instanceof Immutable);
-it('should pass when the constructor argument can be retrieved by a getter method.', (new QuerySimpleTest('testing'))->getTest() == 'testing');
-it('should pass when the constructor argument can be retrieved as an object property.', (new QuerySimpleTest('testing'))->test == 'testing');
-it('should pass if the getName method returns the name of the test query', (new QuerySimpleTest)->getName() == 'QuerySimpleTest');
-it('should pass if the name property contains the name of the test query', (new QuerySimpleTest)->name == 'QuerySimpleTest');
-it('should pass if the getRaisedOn method does not throw an exception', (new QuerySimpleTest)->getRaisedOn());
-it('should pass if accessing the raisedOn property does not throw an exception', (new QuerySimpleTest)->raisedOn);
-it('should throw an \InvalidArgumentException when trying to change the raisedOn time.',
-	throws('\InvalidArgumentException', function() {
-		$query = new QuerySimpleTest;
-		$query->raisedon = 'something';
-	})
-);
-it('should throw a \RuntimeException when trying to instantiate an invalid query',
-	throws('\RuntimeException', function() {
-		$invalidQuery = new QueryComplexTest;
-	})
-);

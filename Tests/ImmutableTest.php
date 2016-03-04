@@ -1,34 +1,54 @@
 <?php
-namespace Joomla\Service\Tests;
+namespace Joomla\Tests\Unit\Service;
 
-use Joomla\Service\Immutable;
+use Joomla\Tests\Unit\Service\Stubs\ImmutableClass;
 
-require __DIR__ . '/../../../../vendor/autoload.php';
-
-function it($m,$p){echo"\033[3",$p?'2m✔︎':'1m✘'.register_shutdown_function(function(){die(1);})," It $m\033[0m\n";}
-function throws($exp,\Closure $cb){try{$cb();}catch(\Exception $e){return $e instanceof $exp;}return false;}
-
-final class ImmutableTest extends Immutable
+class ImmutableTest extends \PHPUnit_Framework_TestCase
 {
-	public function __construct($test = null)
+	/**
+	 * @expectedException \InvalidArgumentException
+	 * @testdox Throws a \InvalidArgumentException when trying to get a non-existant property
+	 */
+	public function testThrowsAnInvalidArgumentExceptionWhenTryingToGetANonexistantProperty()
 	{
-		$this->test = $test;
+		$something = (new ImmutableClass)->doesNotExist;
+	}
 
-		parent::__construct();
+
+	/**
+	 * @expectedException \InvalidArgumentException
+	 * @testdox Throws a \InvalidArgumentException when trying to create a new property
+	 */
+	public function testThrowsAnInvalidArgumentExceptionWhenTryingToCreateANewProperty()
+	{
+		$testObject = new ImmutableClass;
+		$testObject->test = 'something';
+	}
+
+
+	/**
+	 * @testdox The constructor argument can be retrieved by a getter method.
+	 */
+	public function testTheConstructorArgumentCanBeRetrievedByAGetterMethod()
+	{
+		$this->assertEquals('testing', (new ImmutableClass('testing'))->getTest());
+	}
+
+
+	/**
+	 * @testdox The constructor argument can be retrieved as an object property.
+	 */
+	public function testTheConstructorArgumentCanBeRetrievedAsAnObjectProperty()
+	{
+		$this->assertEquals('testing', (new ImmutableClass('testing'))->test);
+	}
+
+
+	/**
+	 * @testdox Property names are not case-sensitive.
+	 */
+	public function testPropertyNamesAreNotCasesensitive()
+	{
+		$this->assertEquals('testing', (new ImmutableClass('testing'))->TeSt);
 	}
 }
-
-it('should throw an \InvalidArgumentException when trying to get a non-existant property',
-	throws('\InvalidArgumentException', function() {
-		$something = (new ImmutableTest)->doesNotExist;
-	})
-);
-it('should throw an \InvalidArgumentException when trying to create a new property',
-	throws('\InvalidArgumentException', function() {
-		$testObject = new ImmutableTest;
-		$testObject->test = 'something';
-	})
-);
-it('should pass when the constructor argument can be retrieved by a getter method.', (new ImmutableTest('testing'))->getTest() == 'testing');
-it('should pass when the constructor argument can be retrieved as an object property.', (new ImmutableTest('testing'))->test == 'testing');
-it('should pass when property names are not case-sensitive.', (new ImmutableTest('testing'))->TeSt == 'testing');
