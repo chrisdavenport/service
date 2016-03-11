@@ -787,3 +787,11 @@ $commandBus = $commandBusBuilder
 	->getCommandBus()
 	;
 ```
+
+# Tests
+To run the tests execute the following commands in your console:
+
+```sh
+$ composer install
+$ vendor/bin/phpunit Tests/ --testdox
+```
