@@ -18,13 +18,20 @@
     },
     "autoload": {
         "psr-4": {
-            "Joomla\\Service\\": "src/",
-            "Joomla\\Service\\Tests\\": "Tests/"
+            "Joomla\\Service\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Joomla\\Tests\\Unit\\Service\\": "Tests/"
         }
     },
     "extra": {
         "branch-alias": {
             "dev-master": "1.x-dev"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8"
     }
 }
